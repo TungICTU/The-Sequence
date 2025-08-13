@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=0.8" />
+  <meta name="viewport" content="width=device-width,initial-scale=0.9" />
   <title>The Sequence Protocol</title>
   <style>
     :root{--bg:#0f1724;--card:#0b1220;--accent:#7dd3fc;--muted:#94a3b8;--danger:#fb7185}
@@ -530,6 +530,14 @@ document.addEventListener('gesturestart', function (e) {
 
 document.addEventListener('touchmove', function (e) {
   if (e.scale !== 1) e.preventDefault(); // stop pinch zoom
+}, { passive: false });
+
+// Prevent pull-to-refresh overscroll
+document.body.style.overscrollBehavior = 'none';
+document.body.addEventListener('touchmove', function (e) {
+  if (window.scrollY === 0 && e.touches[0].clientY > 0) {
+    e.preventDefault();
+  }
 }, { passive: false });
 
 </script>
