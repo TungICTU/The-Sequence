@@ -50,7 +50,21 @@
     .button-row button { flex: 1; white-space: nowrap; }
     .score-fly { position: absolute; font-size: 18px; font-weight: bold; color: #4ade80; pointer-events: none; animation: scoreFlyUp 1s ease-out forwards; }
     @keyframes scoreFlyUp { 0% { opacity: 0; transform: translateY(0px);} 10% { opacity: 1;} 100% { opacity: 0; transform: translateY(-25px);} }
-  </style>
+  
+@media (max-width: 600px) {
+  body {
+    font-size: 0.9em;
+  }
+  button, input, select {
+    font-size: 0.9em;
+    padding: 0.4em 0.6em;
+  }
+  .sequence-container {
+    transform: scale(0.95);
+  }
+}
+
+</style>
 </head>
 <body>
   <div class="app">
