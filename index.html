@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>The Sequence Protocol — Patterns + Glow (Fixed)</title>
+  <title>The Sequence Protocol</title>
   <style>
     :root{--bg:#0f1724;--card:#0b1220;--accent:#7dd3fc;--muted:#94a3b8;--danger:#fb7185}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#071021 0%, #081328 100%);color:#e6eef8}
@@ -27,128 +27,35 @@
     .small{font-size:13px;color:var(--muted)}
     .lives{color:var(--danger);font-weight:600}
     .big{font-size:18px;font-weight:700}
-    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:30px;background:#062433;padding:10px 16px;border-radius:10px;border:1px solid rgba(125,211,252,0.12);}
-    
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:30px;background:#062433;padding:10px 16px;border-radius:10px;border:1px solid rgba(125,211,252,0.12);}    
     .keyboard button{font-size:18px;padding:12px 6px}
     #restartBtn{margin-top:12px}
     @media (max-width:420px){
       .sequence{font-size:18px}
       .slot{min-width:28px;padding:6px}
     }
-    button, .button-row button {
-  transition: background-color 0.25s ease,
-              color 0.25s ease,
-              opacity 0.25s ease,
-              transform 0.15s ease,
-              filter 0.25s ease;
-}
-
-button:hover:not(:disabled),
-.button-row button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-}
-
-button:active:not(:disabled),
-.button-row button:active:not(:disabled) {
-  transform: translateY(0px) scale(0.97);
-  filter: brightness(0.95);
-}
-
-button:disabled,
-.button-row button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-  
-@keyframes difficulty-flash {
-  0%   { box-shadow: 0 0 0px var(--flash-color); }
-  50%  { box-shadow: 0 0 20px var(--flash-color); }
-  100% { box-shadow: 0 0 0px var(--flash-color); }
-}
-.board.flash {
-  animation: difficulty-flash 1s ease-out 2;
-}
-.difficulty-message {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(1);
-  font-size: 28px;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 0 10px black;
-  opacity: 1;
-  pointer-events: none;
-  animation: diff-msg 1.2s ease-out forwards;
-  z-index: 9999;
-}
-@keyframes diff-msg {
-  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -70%) scale(1.5); }
-}
-.keyboard {
-  display: flex;
-  flex-direction: column; /* stack the rows */
-  align-items: center;    /* center the whole keypad */
-}
-.key-row {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 4px;
-}
-.key-row button, .key-spacer {
-  width: 60px;
-  height: 50px;
-  margin: 2px;
-  font-size: 18px;
-}
-.key-spacer {
-  background: transparent;
-  border: none;
-}
-.button-row {
-  display: flex;
-  gap: 10px;              /* space between buttons */
-  justify-content: center;
-  margin-top: 10px;       /* space above buttons */
-}
-.button-row button {
-  flex: 1;                /* equal width */
-  white-space: nowrap; 
-}
-
-
-.score-fly {
-  position: absolute;
-  font-size: 18px;
-  font-weight: bold;
-  color: #4ade80; /* green */
-  pointer-events: none;
-  animation: scoreFlyUp 1s ease-out forwards;
-}
-
-@keyframes scoreFlyUp {
-  0% {
-    opacity: 0;
-    transform: translateY(0px);
-  }
-  10% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-25px);
-  }
-}
-
-</style>
+    button, .button-row button {transition: background-color 0.25s ease, color 0.25s ease, opacity 0.25s ease, transform 0.15s ease, filter 0.25s ease;}
+    button:hover:not(:disabled), .button-row button:hover:not(:disabled) {transform: translateY(-2px); filter: brightness(1.1);}    
+    button:active:not(:disabled), .button-row button:active:not(:disabled) {transform: translateY(0px) scale(0.97); filter: brightness(0.95);}    
+    button:disabled, .button-row button:disabled {opacity: 0.5; cursor: not-allowed;}
+    @keyframes difficulty-flash { 0% { box-shadow: 0 0 0px var(--flash-color);} 50% { box-shadow: 0 0 20px var(--flash-color);} 100% { box-shadow: 0 0 0px var(--flash-color);} }
+    .board.flash { animation: difficulty-flash 1s ease-out 2; }
+    .difficulty-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1); font-size: 28px; font-weight: bold; color: white; text-shadow: 0 0 10px black; opacity: 1; pointer-events: none; animation: diff-msg 1.2s ease-out forwards; z-index: 9999; }
+    @keyframes diff-msg { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -70%) scale(1.5); } }
+    .keyboard { display: flex; flex-direction: column; align-items: center; }
+    .key-row { display: flex; justify-content: center; margin-bottom: 4px; }
+    .key-row button, .key-spacer { width: 60px; height: 50px; margin: 2px; font-size: 18px; }
+    .key-spacer { background: transparent; border: none; }
+    .button-row { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+    .button-row button { flex: 1; white-space: nowrap; }
+    .score-fly { position: absolute; font-size: 18px; font-weight: bold; color: #4ade80; pointer-events: none; animation: scoreFlyUp 1s ease-out forwards; }
+    @keyframes scoreFlyUp { 0% { opacity: 0; transform: translateY(0px);} 10% { opacity: 1;} 100% { opacity: 0; transform: translateY(-25px);} }
+  </style>
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>The Sequence Protocol — Prototype</h1>
+      <h1>The Sequence</h1>
       <div class="hud">
         <div class="stat"><small>Timer</small><div id="timer" class="big">01:00</div></div>
         <div class="stat" style="position:relative;"><small>Score</small><div id="score" class="big">0</div></div>
@@ -184,27 +91,274 @@ button:disabled,
   </div>
 
   <script>
+// ===== Common helpers =====
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function factorial(n){let r=1;for(let i=2;i<=n;i++) r*=i;return r;}
 
-function isIntegerDivisionPossible(arr) {
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] === 0) return false;
-    if (arr[i-1] % arr[i] !== 0) return false;
+// NEW dynamic progression helpers
+function getDynamicRanges(level) {
+  const steps = Math.floor((level - 1) / 10);
+  const minLen = 4 + steps;
+  const maxLen = 7 + steps;
+  const minBlanks = 1;
+  const maxBlanks = 2 + steps;
+  return { minLen, maxLen, minBlanks, maxBlanks };
+}
+
+function randLengthDynamic(level) {
+  const { minLen, maxLen } = getDynamicRanges(level);
+  return randInt(minLen, maxLen);
+}
+
+function pickBlanksDynamic(len, level) {
+  const { minBlanks, maxBlanks } = getDynamicRanges(level);
+  const maxAllowed = Math.floor(len / 3);
+  const effectiveMax = Math.min(maxBlanks, maxAllowed);
+  const blanksToPick = randInt(minBlanks, effectiveMax);
+  const blanks = [];
+  while (blanks.length < blanksToPick) {
+    const idx = randInt(1, len - 1);
+    if (!blanks.includes(idx)) blanks.push(idx);
   }
+  return blanks.sort((a, b) => a - b);
+}
+
+function showScoreGain(amount) {
+  const scoreEl = document.getElementById('score');
+  const statContainer = scoreEl.parentElement;
+  const fly = document.createElement('div');
+  fly.className = 'score-fly';
+  fly.textContent = `+${amount}`;
+  statContainer.appendChild(fly);
+  const scoreRect = scoreEl.getBoundingClientRect();
+  const containerRect = statContainer.getBoundingClientRect();
+  const left = (scoreRect.left - containerRect.left) + (scoreRect.width / 2) + 20;
+  fly.style.left = left + 'px';
+  fly.style.top = (scoreRect.top - containerRect.top - 5) + 'px';
+  fly.style.transform = 'translateX(-50%)';
+  setTimeout(() => fly.remove(), 1000);
+}
+
+// Global primes list (shared by generator + solver)
+const PRIMES = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499,503,509,521,523,541,547,557,563,569,571,577,587,593,599,601,607,613,617,619,631,641,643,647,653,659,661,673,677,683,691,701,709,719,727,733,739,743,751,757,761,769,773,787,797,809,811,821,823,827,829,839,853,857,859,863,877,881,883,887,907,911,919,929,937,941,947,953,967,971,977,983,991,997];
+
+// ===== Solvability / rule detection =====
+function idxes(n){return [...Array(n).keys()];}
+function knownMask(arr, blanks){ const s=new Set(blanks); return arr.map((v,i)=> s.has(i)? null : v ); }
+function countKnown(known){ return known.filter(v=>v!=null).length; }
+function allFilled(a){ return a.every(v=>v!=null); }
+
+function tryArithmetic(known){
+  // get diffs from any adjacent knowns
+  let step=null; let firstIdx=-1;
+  for(let i=1;i<known.length;i++){
+    if(known[i]!=null && known[i-1]!=null){
+      const d=known[i]-known[i-1];
+      if(step==null){ step=d; firstIdx=i; }
+      else if(d!==step) return null;
+    }
+  }
+  if(step==null) return null; // no adjacent knowns
+  // fill
+  const out=known.slice();
+  // forward
+  for(let i=firstIdx+1;i<out.length;i++) if(out[i]==null) out[i]=out[i-1]+step; else if(out[i]-out[i-1]!==step) return null;
+  // backward
+  for(let i=firstIdx-1;i>=0;i--) if(out[i]==null) out[i]=out[i+1]-step; else if(out[i+1]-out[i]!==step) return null;
+  return out;
+}
+
+function tryGeometric(known){
+  let ratio=null; let firstIdx=-1;
+  for(let i=1;i<known.length;i++){
+    if(known[i]!=null && known[i-1]!=null){
+      if(known[i-1]===0) return null; // can't infer
+      const r=known[i]/known[i-1];
+      if(ratio==null){ ratio=r; firstIdx=i; }
+      else if(r!==ratio) return null;
+    }
+  }
+  if(ratio==null) return null;
+  const out=known.slice();
+  for(let i=firstIdx+1;i<out.length;i++) if(out[i]==null) out[i]=out[i-1]*ratio; else if(out[i]!==out[i-1]*ratio) return null;
+  for(let i=firstIdx-1;i>=0;i--) if(out[i]==null) out[i]=out[i+1]/ratio; else if(out[i+1]!==out[i]*ratio) return null;
+  // integers only
+  if(out.some(v=>!Number.isInteger(v))) return null;
+  return out;
+}
+
+function isSquare(n){const r=Math.round(Math.sqrt(n));return r*r===n;}
+function isCube(n){const r=Math.round(Math.cbrt(n));return r*r*r===n;}
+
+function tryConsecutivePowers(known, pow){
+  // find k so that term[i] = (k+i)^pow
+  // brute force k search from 0..100 based on smallest known
+  const n=known.length; const knownPairs=idxes(n).filter(i=>known[i]!=null).map(i=>[i,known[i]]);
+  const candidates=[];
+  for(let k=0;k<=200;k++){
+    let ok=true;
+    for(const [i,v] of knownPairs){ if(Math.pow(k+i,pow)!==v){ ok=false; break; } }
+    if(ok) candidates.push(k);
+  }
+  if(candidates.length!==1) return null; // must be unique start
+  const k=candidates[0];
+  return idxes(n).map(i=> Math.pow(k+i,pow));
+}
+
+function tryPowersOfBase(known){
+  // term[i] = base^(i+1), base 2..6 (allow a bit wider)
+  const n=known.length; const pairs=idxes(n).filter(i=>known[i]!=null).map(i=>[i,known[i]]);
+  const bases=[2,3,4,5,6];
+  const cands=[];
+  for(const b of bases){
+    let ok=true; for(const [i,v] of pairs){ if(Math.pow(b,i+1)!==v){ ok=false; break; } }
+    if(ok) cands.push(b);
+  }
+  if(cands.length!==1) return null;
+  const b=cands[0];
+  return idxes(n).map(i=> Math.pow(b,i+1));
+}
+
+function tryFactorials(known){
+  // term[i] = (s+i)!
+  const n=known.length; const pairs=idxes(n).filter(i=>known[i]!=null).map(i=>[i,known[i]]);
+  const factVals=Array.from({length:10},(_,i)=> factorial(i));
+  const candidates=[];
+  for(let s=0;s<=9;s++){
+    let ok=true; for(const [i,v] of pairs){ if(factorial(s+i)!==v){ ok=false; break; } }
+    if(ok) candidates.push(s);
+  }
+  if(candidates.length!==1) return null;
+  const s=candidates[0];
+  return idxes(n).map(i=> factorial(s+i));
+}
+
+function tryPrimes(known){
+  const n=known.length; const pairs=idxes(n).filter(i=>known[i]!=null).map(i=>[i,known[i]]);
+  // find all start positions in PRIMES matching known
+  const maxStart=PRIMES.length-n;
+  const cands=[];
+  for(let s=0;s<=maxStart;s++){
+    let ok=true; for(const [i,v] of pairs){ if(PRIMES[s+i]!==v){ ok=false; break; } }
+    if(ok) cands.push(s);
+  }
+  if(cands.length!==1) return null;
+  const s=cands[0];
+  return idxes(n).map(i=> PRIMES[s+i]);
+}
+
+function tryFibonacci(known){
+  const n=known.length;
+  // need at least two consecutive knowns somewhere to anchor
+  let anchor=-1;
+  for(let i=1;i<n;i++) if(known[i]!=null && known[i-1]!=null){ anchor=i; break; }
+  if(anchor<0) return null;
+  const out=known.slice();
+  // forward
+  for(let i=anchor+1;i<n;i++){
+    const a=out[i-1], b=out[i-2]; if(b==null) { // if i-2 unknown, we can't assert
+      // backfill i-2 from i and i-1 later
+    }
+    if(out[i]==null){ out[i]=out[i-1]+out[i-2]; }
+    else if(out[i]!==out[i-1]+out[i-2]) return null;
+  }
+  // backward using x_{k-2}=x_k-x_{k-1}
+  for(let i=anchor-1;i>=0;i--){
+    if(out[i]==null){ out[i]=out[i+2]-out[i+1]; }
+    else if(out[i+2]-out[i+1]!==out[i]) return null;
+  }
+  return out;
+}
+
+function tryRepeatingPattern(known){
+  const n=known.length; const pairs=idxes(n).filter(i=>known[i]!=null);
+  const tryLen=(L)=>{
+    // infer pattern values from earliest occurrences
+    const pattern=new Array(L).fill(null);
+    for(const i of pairs){ const p=i%L; const v=known[i]; if(pattern[p]==null) pattern[p]=v; else if(pattern[p]!==v) return null; }
+    // ensure pattern fully determined (no nulls)
+    if(pattern.some(v=>v==null)) return null;
+    const out=idxes(n).map(i=> pattern[i%L]);
+    return out;
+  };
+  // try L=2 then 3; require unique
+  const outs=[]; for(const L of [2,3]){ const o=tryLen(L); if(o) outs.push(o); }
+  if(outs.length!==1) return null; return outs[0];
+}
+
+function digitSum(n){ return Math.abs(n).toString().split('').reduce((a,b)=>a+ +b,0); }
+function trySumOfDigits(known){
+  // x_{i}=sumdigits(x_{i-1}). To fill uniquely, need at least one known at/left of first blank.
+  const n=known.length; const out=known.slice();
+  let firstKnown = out.findIndex(v=>v!=null);
+  if(firstKnown<=0) {
+    // if earliest known is index 0, good; if -1 (none) or >0 while index 0 is blank, not solvable deterministically
+    if(firstKnown!==0) return null;
+  }
+  for(let i=1;i<n;i++){
+    if(out[i]==null && out[i-1]!=null) out[i]=digitSum(out[i-1]);
+    else if(out[i]!=null && out[i-1]!=null && out[i]!==digitSum(out[i-1])) return null;
+    else if(out[i]==null && out[i-1]==null) return null; // gap cannot be bridged uniquely
+  }
+  return out;
+}
+
+function tryAlternatingOps(known){
+  // Model: choose two ops from {add,sub,mul,div} with constants v1,v2 (2..9 for mul/div, 1..6 for add/sub in generator)
+  // Heuristic: require a run of 3 consecutive known values to deduce uniquely
+  const n=known.length; let runStart=-1;
+  for(let i=2;i<n;i++) if(known[i]!=null && known[i-1]!=null && known[i-2]!=null){ runStart=i-2; break; }
+  if(runStart<0) return null;
+  const a=known[runStart], b=known[runStart+1], c=known[runStart+2];
+  const OPS=["add","sub","mul","div"];
+  const cand=[];
+  function apply(x,op,val){ if(op==="add") return x+val; if(op==="sub") return x-val; if(op==="mul") return x*val; if(op==="div") { if(val===0||x%val!==0) return null; return x/val; } }
+  const vals1=[1,2,3,4,5,6], vals2=[2,3,4,5,6,7,8,9];
+  for(const op1 of OPS){ for(const op2 of OPS){ if(op1===op2 && op1==="div"){} // allow same too
+    const V1 = (op1==="mul"||op1==="div")? vals2: vals1;
+    const V2 = (op2==="mul"||op2==="div")? vals2: vals1;
+    for(const v1 of V1){
+      const after1 = apply(a,op1,v1); if(after1==null) continue; if(after1!==b) continue;
+      for(const v2 of V2){ const after2 = apply(b,op2,v2); if(after2==null) continue; if(after2!==c) continue; cand.push([op1,v1,op2,v2]); }
+    }
+  }}
+  if(cand.length!==1) return null;
+  const [op1,v1,op2,v2]=cand[0];
+  const out=known.slice();
+  // fill forward
+  for(let i=runStart+3;i<n;i++){
+    const prev=out[i-1]; const op = (i%2===1)? op1: op2; const val=(i%2===1)? v1: v2; const next = apply(prev,op,val); if(next==null) return null; if(out[i]==null) out[i]=next; else if(out[i]!==next) return null;
+  }
+  // fill backward
+  function invert(x,op,val){ if(op==="add") return x-val; if(op==="sub") return x+val; if(op==="mul") { if(x%val!==0) return null; return x/val; } if(op==="div") return x*val; }
+  for(let i=runStart-1;i>=0;i--){ const next=out[i+1]; const op = ((i+1)%2===1)? op1: op2; const val = ((i+1)%2===1)? v1: v2; const prev = invert(next,op,val); if(prev==null) return null; if(out[i]==null) out[i]=prev; else if(out[i]!==prev) return null; }
+  return out;
+}
+
+function detectAndFill(arr, blanks){
+  const known = knownMask(arr, blanks);
+  // Try each rule; the one that fills all and stays consistent wins (unique)
+  const attempts = [tryArithmetic, tryGeometric, k=>tryConsecutivePowers(k,2), k=>tryConsecutivePowers(k,3), tryPowersOfBase, tryFactorials, tryPrimes, tryFibonacci, tryRepeatingPattern, trySumOfDigits, tryAlternatingOps];
+  const results = attempts.map(fn=>{ try{ return fn(known); }catch(e){ return null; } }).filter(o=>o && allFilled(o));
+  // Accept only if exactly one rule explains the visible numbers and fills uniquely
+  if(results.length!==1) return null;
+  return results[0];
+}
+
+function isHumanlySolvable(out){
+  const filled = detectAndFill(out.arr, out.blanks);
+  if(!filled) return false;
+  // ensure unique answers match
+  const s=new Set(out.blanks);
+  for(let i=0;i<filled.length;i++) if(s.has(i) && filled[i]!==out.arr[i]) return false;
   return true;
 }
 
+// ====== Existing game code (with minor taps to use solvable generation) ======
+function isIntegerDivisionPossible(arr) { for (let i = 1; i < arr.length; i++) { if (arr[i] === 0) return false; if (arr[i-1] % arr[i] !== 0) return false; } return true; }
+function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { if (arr[i] === 0) return false; if (arr[i-1] % arr[i] !== 0) return false; } return true; }
 
-function isValidDivisionSequence(arr) {
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] === 0) return false; // avoid division by zero
-    if (arr[i-1] % arr[i] !== 0) return false;
-  }
-  return true;
-}
-
-// Cleaned main script
 (function(){
-  // Elements
   const timerEl = document.getElementById('timer');
   const scoreEl = document.getElementById('score');
   const livesEl = document.getElementById('lives');
@@ -223,479 +377,146 @@ function isValidDivisionSequence(arr) {
   const hintBox = document.getElementById('hintBox');
   const difficultyOverlay = document.getElementById('difficultyOverlay');
 
-  // state
   let score = 0, lives = 3, timeLeft = 60, timerInterval = null;
   let current = null;
   let hintsRemaining = 3, streak = 0;
   let level = 1, sequencesCompleted = 0;
   let difficultyStages = ['easy','medium','hard','expert'];
   let difficultyIndex = 0;
-
   function getCurrentDifficulty(){ return difficultyStages[difficultyIndex]; }
 
-  function showToast(txt, ms=1400){
-    if(!toast) return;
-    toast.textContent = txt;
-    toast.style.display='block';
-    setTimeout(()=> toast.style.display='none', ms);
-  }
-
-  function showDifficultyIncreaseVisual(newDiff){
-    if(!difficultyOverlay) return;
-    difficultyOverlay.textContent = 'DIFFICULTY: ' + (newDiff||'').toUpperCase();
-    difficultyOverlay.style.display = 'block';
-    difficultyOverlay.style.opacity = '1';
-    setTimeout(()=>{
-      difficultyOverlay.style.opacity = '0';
-      setTimeout(()=> difficultyOverlay.style.display='none', 500);
-    }, 1400);
-  }
-
-  function startTimer(){
-    clearInterval(timerInterval);
-    timeLeft = 60;
-    updateTimer();
-    timerInterval = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0) onTimeout(); },1000);
-  }
+  function showToast(txt, ms=1400){ if(!toast) return; toast.textContent = txt; toast.style.display='block'; setTimeout(()=> toast.style.display='none', ms); }
+  function showDifficultyIncreaseVisual(newDiff){ if(!difficultyOverlay) return; difficultyOverlay.textContent = 'DIFFICULTY: ' + (newDiff||'').toUpperCase(); difficultyOverlay.style.display = 'block'; difficultyOverlay.style.opacity = '1'; setTimeout(()=>{ difficultyOverlay.style.opacity = '0'; setTimeout(()=> difficultyOverlay.style.display='none', 500); }, 1400); }
+  function startTimer(){ clearInterval(timerInterval); timeLeft = 60; updateTimer(); timerInterval = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0) onTimeout(); },1000); }
   function updateTimer(){ const mm = String(Math.floor(timeLeft/60)).padStart(2,'0'); const ss = String(timeLeft%60).padStart(2,'0'); if(timerEl) timerEl.textContent = mm+':'+ss; }
 
-  function factorial(n){let r=1;for(let i=2;i<=n;i++) r*=i;return r;}
-function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-  function randLength(min=4,max=9){ return randInt(min,max); }
+      const opRanges = {
+    add: { easy: { start: [1, 50], step: [1, 10] }, medium: { start: [1, 500], step: [1, 100] }, hard: { start: [500, 5000], step: [50, 200] }, expert: { start: [1000, 10000], step: [100, 500] } },
+    sub: { easy: { start: [10, 100], step: [1, 10] }, medium: { start: [100, 500], step: [10, 100] }, hard: { start: [500, 5000], step: [50, 200] }, expert: { start: [1000, 10000], step: [100, 500] } },
+    mul: { easy: { start: [1, 5], step: [2, 5] }, medium: { start: [1, 20], step: [2, 9] }, hard: { start: [5, 50], step: [2, 12] }, expert: { start: [10, 100], step: [2, 15] } },
+    div: { easy: { start: [1, 5], step: [2, 5] }, medium: { start: [5, 50], step: [2, 9] }, hard: { start: [50, 200], step: [2, 12] }, expert: { start: [100, 500], step: [2, 15] } }
+  };
+  function randRange(range) { return randInt(range[0], range[1]); }
 
-  function pickBlanks(len){
-    const curDiff = getCurrentDifficulty();
-    if((len === 4 || len === 5) && (curDiff === 'medium' || curDiff === 'hard')){
-      return [ randInt(1, Math.max(1, len-1)) ];
+  const generators = {
+    easy(difficulty = 'easy') {
+      let len = randLengthDynamic(level);
+      const type = randInt(1, 2);
+      let arr, rule;
+      if (type === 1) { const start = randRange(opRanges.add[difficulty].start); const step = randRange(opRanges.add[difficulty].step); arr = Array.from({ length: len }, (_, i) => start + step * i); rule = `Add ${step} (start from ${start})`; }
+      else { const start = randRange(opRanges.sub[difficulty].start); const step = randRange(opRanges.sub[difficulty].step); arr = Array.from({ length: len }, (_, i) => start - step * i); rule = `Subtract ${step} (start from ${start})`; }
+      const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule };
+    },
+
+    medium(difficulty = 'medium') {
+      const type = randInt(1, 5);
+      let len; if (level <= 10) { if (type === 4) len = 6; else if (type === 2 || type === 3) len = randInt(4,5); else len = randInt(4,6); } else { if (type === 2 || type === 3) len = randInt(5,7); else if (type === 4) len = randInt(5,9); else len = randInt(5,9); }
+      let arr, rule;
+      if (type === 1) { return this.easy(difficulty); }
+      else if (type === 2) { const start = randRange(opRanges.mul[difficulty].start); const mul = randRange(opRanges.mul[difficulty].step); arr = Array.from({ length: len }, (_, i) => start * (mul ** i)); rule = `Multiply by ${mul} (start from ${start})`; }
+      else if (type === 3) { const div = randRange(opRanges.div[difficulty].step); const start = randRange(opRanges.div[difficulty].start) * (div ** (len - 1)); arr = Array.from({ length: len }, (_, i) => start / (div ** i)); rule = `Divide by ${div} (start from ${start})`; }
+      else if (type === 4) { const ops = ["add", "sub", "mul", "div"]; let op1 = ops.splice(randInt(0, ops.length - 1), 1)[0]; let op2 = ops[randInt(0, ops.length - 1)]; let val1 = randInt(1, 6), val2 = randInt(2, 6); arr = [randInt(5, 20)]; for (let i = 1; i < len; i++) { let prev = arr[i - 1]; let op = (i % 2 === 1) ? op1 : op2; let val = (i % 2 === 1) ? val1 : val2; if (op === "add") prev += val; else if (op === "sub") prev -= val; else if (op === "mul") prev *= val; else if (op === "div") { if (prev % val !== 0) prev -= (prev % val); prev /= val; } arr.push(prev); } const opName = o => o === "add" ? "Add" : o === "sub" ? "Subtract" : o === "mul" ? "Multiply by" : "Divide by"; rule = `${opName(op1)} ${val1}, then ${opName(op2)} ${val2}, repeat`; }
+      else { len = randInt(6,9); const patternLength = randInt(2, 3); const pattern = Array.from({ length: patternLength }, () => randInt(1, 9)); arr = Array.from({ length: len }, (_, i) => pattern[i % patternLength]); rule = `Repeating pattern: ${pattern.join(", ")}`; }
+      const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule };
+    },
+
+    hard(difficulty = 'hard') {
+      const type = randInt(1, 5);
+      let len; if (level <= 10) { if (type === 2 || type === 3) len = randInt(4,5); else len = randInt(4,6); } else { if (type === 2 || type === 3) len = randInt(5,7); else len = randInt(5,9); }
+      if (type === 1) { return this.medium(difficulty); }
+      else if (type === 2) { const start = randInt(1, 5); const arr = Array.from({ length: len }, (_, i) => (start + i) ** 2); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Squares starting at ${start}²` }; }
+      else if (type === 3) { const startIdx = randInt(0, PRIMES.length - len); const arr = PRIMES.slice(startIdx, startIdx + len); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Prime numbers in order` }; }
+      else if (type === 4) { const start = randInt(1, 4); const arr = Array.from({ length: len }, (_, i) => (start + i) ** 3); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Cubes starting at ${start}³` }; }
+      else { const a = randInt(1, 9), b = randInt(1, 9); const arr = [a, b]; for (let i = 2; i < len; i++) arr.push(arr[i - 1] + arr[i - 2]); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Fibonacci starting with ${a}, ${b}` }; }
+    },
+
+    expert(difficulty = 'expert') {
+      const type = randInt(1, 5);
+      let len; if (level <= 10) { if (type === 2 || type === 3) len = randInt(4,5); else len = randInt(4,6); } else { if (type === 2 || type === 3) len = randInt(5,7); else if (type === 5) len = randInt(7,9); else len = randInt(5,9); }
+      if (type === 1) { return this.hard(difficulty); }
+      else if (type === 2) { const start = randInt(1, 5); const arr = Array.from({ length: len }, (_, i) => factorial(start + i)); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Factorials starting at ${start}!` }; }
+      else if (type === 3) { const base = randInt(2, 4); const arr = Array.from({ length: len }, (_, i) => base ** (i + 1)); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Powers of ${base}` }; }
+      else if (type === 4) { let start = randInt(10, 50); const arr = [start]; for (let i = 1; i < len; i++) { start = String(start).split('').reduce((a, b) => a + +b, 0); arr.push(start); } const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Sum of digits of previous number` }; }
+      else { const ops = ["add", "sub", "mul", "div"]; let op1 = ops.splice(randInt(0, ops.length - 1), 1)[0]; let op2 = ops[randInt(0, ops.length - 1)]; let val1 = randInt(1, 6), val2 = randInt(2, 6); let arr = [randInt(5, 20)]; for (let i = 1; i < len; i++) { let prev = arr[i - 1]; let op = (i % 2 === 1) ? op1 : op2; let val = (i % 2 === 1) ? val1 : val2; if (op === "add") prev += val; else if (op === "sub") prev -= val; else if (op === "mul") prev *= val; else if (op === "div") { if (prev % val !== 0) prev -= (prev % val); prev /= val; } arr.push(prev); } const opName = o => o === "add" ? "Add" : o === "sub" ? "Subtract" : o === "mul" ? "Multiply by" : "Divide by"; const rule = `${opName(op1)} ${val1}, then ${opName(op2)} ${val2}, repeat`; const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule }; }
     }
-    let possibleCounts;
-    if(level <= 10) possibleCounts = [1];
-    else if(level <= 20) possibleCounts = [1,2];
-    else if(level <= 30) possibleCounts = [1,2,3];
-    else possibleCounts = [1,2,3,4];
-    const blanksToPick = possibleCounts[ randInt(0, possibleCounts.length - 1) ];
-    const blanks = [];
-    while(blanks.length < blanksToPick){
-      const idx = randInt(1, Math.max(1, len-1));
-      if(!blanks.includes(idx)) blanks.push(idx);
-    }
-    blanks.sort((a,b)=>a-b);
-    return blanks;
-  }
+  };
 
-  function maybeReverse(arr){ return Math.random() < 0.5 ? arr.slice().reverse() : arr; }
+  function normalizeBlanks(out){ if(!out || !Array.isArray(out.blanks)) return out; if(!Array.isArray(out.answers) || out.answers.length !== out.blanks.length){ out.answers = out.blanks.map(i=>out.arr[i]); } else { out.answers = out.answers.map(a=>Number(a)); } const pairs = out.blanks.map((b,i)=> ({b:b, ans: Number(out.answers[i])})); pairs.sort((x,y)=> x.b - y.b); out.blanks = pairs.map(p=>p.b); out.answers = pairs.map(p=>p.ans); return out; }
 
-  const opRanges = {
-  add: {
-    easy: { start: [1, 50], step: [1, 10] },
-    medium: { start: [1, 500], step: [1, 100] },
-    hard: { start: [500, 5000], step: [50, 200] },
-    expert: { start: [1000, 10000], step: [100, 500] }
-  },
-  sub: {
-    easy: { start: [10, 100], step: [1, 10] },
-    medium: { start: [100, 500], step: [10, 100] },
-    hard: { start: [500, 5000], step: [50, 200] },
-    expert: { start: [1000, 10000], step: [100, 500] }
-  },
-  mul: {
-    easy: { start: [1, 5], step: [2, 5] },
-    medium: { start: [1, 20], step: [2, 9] },
-    hard: { start: [5, 50], step: [2, 12] },
-    expert: { start: [10, 100], step: [2, 15] }
-  },
-  div: {
-    easy: { start: [1, 5], step: [2, 5] },
-    medium: { start: [5, 50], step: [2, 9] },
-    hard: { start: [50, 200], step: [2, 12] },
-    expert: { start: [100, 500], step: [2, 15] }
-  }
-};
-
-// Helper to get random value in range
-function randRange(range) {
-  return randInt(range[0], range[1]);
-}
-
-const generators = {
-  // EASY: Addition / Subtraction
-  easy(difficulty = 'easy') {
-    const len = randLength();
-    const type = randInt(1, 2);
-    let arr, rule;
-
-    if (type === 1) { // Addition
-      const start = randRange(opRanges.add[difficulty].start);
-      const step = randRange(opRanges.add[difficulty].step);
-      arr = Array.from({ length: len }, (_, i) => start + step * i);
-      rule = `Add ${step} (start from ${start})`;
-    } else { // Subtraction
-      const start = randRange(opRanges.sub[difficulty].start);
-      const step = randRange(opRanges.sub[difficulty].step);
-      arr = Array.from({ length: len }, (_, i) => start - step * i);
-      rule = `Subtract ${step} (start from ${start})`;
-    }
-
-    
-    const blanks = pickBlanks(len);
-    return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule };
-  },
-
-  // MEDIUM: Easy + Multiplication / Division / Double ops / Repeating Pattern
-  medium(difficulty = 'medium') {
-    const len = randLength();
-    const type = randInt(1, 5);
-    let arr, rule;
-
-    if (type === 1) {
-      return this.easy(difficulty);
-    } else if (type === 2) { // Multiplication
-      const start = randRange(opRanges.mul[difficulty].start);
-      const mul = randRange(opRanges.mul[difficulty].step);
-      arr = Array.from({ length: len }, (_, i) => start * (mul ** i));
-      rule = `Multiply by ${mul} (start from ${start})`;
-    } else if (type === 3) { // Division
-      const div = randRange(opRanges.div[difficulty].step);
-      const start = randRange(opRanges.div[difficulty].start) * (div ** (len - 1));
-      arr = Array.from({ length: len }, (_, i) => start / (div ** i));
-      rule = `Divide by ${div} (start from ${start})`;
-    } else if (type === 4) { // Random double operation (unchanged scaling)
-      const ops = ["add", "sub", "mul", "div"];
-      let op1 = ops.splice(randInt(0, ops.length - 1), 1)[0];
-      let op2 = ops[randInt(0, ops.length - 1)];
-      let val1 = randInt(1, 6), val2 = randInt(2, 6);
-      arr = [randInt(5, 20)];
-
-      for (let i = 1; i < len; i++) {
-        let prev = arr[i - 1];
-        let op = (i % 2 === 1) ? op1 : op2;
-        let val = (i % 2 === 1) ? val1 : val2;
-        if (op === "add") prev += val;
-        else if (op === "sub") prev -= val;
-        else if (op === "mul") prev *= val;
-        else if (op === "div") {
-          if (prev % val !== 0) prev = prev - (prev % val);
-          prev /= val;
-        }
-        arr.push(prev);
+  // NEW: generate until "humanly solvable" (unique fill from visibles)
+  function generateSolvable(){
+    let attempt=0;
+    while(true){
+      attempt++;
+      const raw = generators[getCurrentDifficulty()]();
+      const out = normalizeBlanks(raw);
+      if(isHumanlySolvable(out)) return out;
+      if(attempt>100){ // fallback: force arithmetic easy to avoid lock
+        const len=randInt(5,7), start=randInt(1,20), step=randInt(1,9);
+        const arr=Array.from({length:len},(_,i)=> start+step*i);
+        const blanks=pickBlanksDynamic(len, level);
+        const fallback={arr,blanks,answers:blanks.map(i=>arr[i]),ruleText:`Add ${step} (start from ${start})`};
+        return fallback;
       }
-
-      const opName = o => o === "add" ? "Add" : o === "sub" ? "Subtract" : o === "mul" ? "Multiply by" : "Divide by";
-      rule = `${opName(op1)} ${val1}, then ${opName(op2)} ${val2}, repeat`;
-    } else { // Repeating pattern
-      const patternLength = randInt(2, 3);
-      const pattern = Array.from({ length: patternLength }, () => randInt(1, 9));
-      arr = Array.from({ length: len }, (_, i) => pattern[i % patternLength]);
-      rule = `Repeating pattern: ${pattern.join(", ")}`;
-    }
-
-    
-    const blanks = pickBlanks(len);
-    return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule };
-  },
-
-  // HARD: Medium + Squares / Primes / Cubes / Fibonacci
-  hard(difficulty = 'hard') {
-    const len = randLength();
-    const type = randInt(1, 5);
-
-    if (type === 1) {
-      return this.medium(difficulty);
-    } else if (type === 2) { // Squares
-      const start = randInt(1, 5);
-      const arr = Array.from({ length: len }, (_, i) => (start + i) ** 2);
-      const blanks = pickBlanks(len);
-      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Squares starting at ${start}²` };
-    } else if (type === 3) { // Primes
-      const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 
-      59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 
-      139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 
-      229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 
-      317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 
-      421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 
-      521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617, 
-      619, 631, 641, 643, 647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719, 727, 
-      733, 739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 
-      839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 
-      953, 967, 971, 977, 983, 991, 997];
-      const startIdx = randInt(0, primes.length - len);
-      const arr = primes.slice(startIdx, startIdx + len);
-      const blanks = pickBlanks(len);
-      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Prime numbers in order` };
-    } else if (type === 4) { // Cubes
-      const start = randInt(1, 4);
-      const arr = Array.from({ length: len }, (_, i) => (start + i) ** 3);
-      const blanks = pickBlanks(len);
-      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Cubes starting at ${start}³` };
-    } else { // Fibonacci
-      const a = randInt(1, 9), b = randInt(1, 9);
-      const arr = [a, b];
-      for (let i = 2; i < len; i++) arr.push(arr[i - 1] + arr[i - 2]);
-      const blanks = pickBlanks(len);
-      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Fibonacci starting with ${a}, ${b}` };
-    }
-  },
-
-  // EXPERT: Hard + Factorials / Powers / Sum of digits / Alternating ops
-  expert(difficulty = 'expert') {
-    const len = randLength();
-    const type = randInt(1, 5);
-
-    if (type === 1) {
-      return this.hard(difficulty);
-    } else if (type === 2) { // Factorials
-      const start = randInt(1, 5);
-      const arr = Array.from({ length: len }, (_, i) => factorial(start + i));
-      const blanks = pickBlanks(len);
-      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Factorials starting at ${start}!` };
-    } else if (type === 3) { // Powers
-      const base = randInt(2, 4);
-      const arr = Array.from({ length: len }, (_, i) => base ** (i + 1));
-      const blanks = pickBlanks(len);
-      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Powers of ${base}` };
-    } else if (type === 4) { // Sum of digits
-      let start = randInt(10, 50);
-      const arr = [start];
-      for (let i = 1; i < len; i++) {
-        start = String(start).split('').reduce((a, b) => a + +b, 0);
-        arr.push(start);
-      }
-      const blanks = pickBlanks(len);
-      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Sum of digits of previous number` };
-    } else { // Alternating ops (unchanged scaling)
-      const ops = ["add", "sub", "mul", "div"];
-      let op1 = ops.splice(randInt(0, ops.length - 1), 1)[0];
-      let op2 = ops[randInt(0, ops.length - 1)];
-      let val1 = randInt(1, 6), val2 = randInt(2, 6);
-      let arr = [randInt(5, 20)];
-
-      for (let i = 1; i < len; i++) {
-        let prev = arr[i - 1];
-        let op = (i % 2 === 1) ? op1 : op2;
-        let val = (i % 2 === 1) ? val1 : val2;
-        if (op === "add") prev += val;
-        else if (op === "sub") prev -= val;
-        else if (op === "mul") prev *= val;
-        else if (op === "div") {
-          if (prev % val !== 0) prev = prev - (prev % val);
-          prev /= val;
-        }
-        arr.push(prev);
-      }
-
-      const opName = o => o === "add" ? "Add" : o === "sub" ? "Subtract" : o === "mul" ? "Multiply by" : "Divide by";
-      const rule = `${opName(op1)} ${val1}, then ${opName(op2)} ${val2}, repeat`;
-      const blanks = pickBlanks(len);
-      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule };
     }
   }
-};
 
-
-  function normalizeBlanks(out){
-    if(!out || !Array.isArray(out.blanks)) return out;
-    if(!Array.isArray(out.answers) || out.answers.length !== out.blanks.length){
-      out.answers = out.blanks.map(i=>out.arr[i]);
-    } else {
-      out.answers = out.answers.map(a=>Number(a));
-    }
-    const pairs = out.blanks.map((b,i)=> ({b:b, ans: Number(out.answers[i])}));
-    pairs.sort((x,y)=> x.b - y.b);
-    out.blanks = pairs.map(p=>p.b);
-    out.answers = pairs.map(p=>p.ans);
-    return out;
-  }
-
+  let revealUsedThisSequence = false;
   function generateSequence(){
-  
-  revealUsedThisSequence = false;
-// reset reveal-used flag whenever a new sequence is generated
-  revealUsedThisSequence = false;
-    const outRaw = generators[getCurrentDifficulty()]();
-    const out = normalizeBlanks(outRaw);
+    revealUsedThisSequence = false;
+    const out = generateSolvable();
     current = { arr: out.arr.slice(), blanks: out.blanks.slice(), answers: out.answers.slice(), ruleText: out.ruleText || out.hint || 'Pattern' };
     console.groupCollapsed('Generated sequence'); console.log(out.arr); console.log('blanks', out.blanks); console.log('answers', out.answers); console.groupEnd();
     renderSequence();
   }
 
-  function renderSequence(){
-    if(!current || !Array.isArray(current.arr)) return;
-    const parts = current.arr.map((n,i)=>{
-      if(Array.isArray(current.blanks) && current.blanks.includes(i)){
-        let cls = 'slot question'; if(i === current.blanks[0]) cls += ' active-question';
-        return `<span class="${cls}" data-idx="${i}">?</span>`;
-      }
-      return `<span class="slot">${n}</span>`;
-    });
-    seqArea.innerHTML = parts.join(', ');
-    if(ruleHintEl) ruleHintEl.textContent = '—';
-  }
+  function renderSequence(){ if(!current || !Array.isArray(current.arr)) return; const parts = current.arr.map((n,i)=>{ if(Array.isArray(current.blanks) && current.blanks.includes(i)){ let cls = 'slot question'; if(i === current.blanks[0]) cls += ' active-question'; return `<span class="${cls}" data-idx="${i}">?</span>`; } return `<span class="slot">${n}</span>`; }); seqArea.innerHTML = parts.join(', '); if(ruleHintEl) ruleHintEl.textContent = '—'; }
 
-  function checkAnswer(){ const val = (numInput.value || '').toString().trim();
-  if(val === ''){ showToast('Enter a number'); return; }
-  const num = Number(val);
-  if(Number.isNaN(num)){ showToast('Invalid number'); numInput.value=''; return; }
-  if(!current || !Array.isArray(current.blanks) || current.blanks.length === 0){
-    showToast('No blanks — press Next'); numInput.value=''; return;
-  }
-
-  const idx = current.blanks[0];
-  const correct = Number(current.answers[0]);
-
-  if(num === correct){
-    current.arr[idx] = correct;
-    current.blanks.shift();
-    current.answers.shift();
-
-    let totalPoints = 0;
-    let points = 10 + Math.floor(10*(streak*0.2));
-    totalPoints += points;
-    streak++;
-
-    if(!current.blanks || current.blanks.length === 0){
-        revealUsedThisSequence = false;
-        hintBtn.disabled = (hintsRemaining <= 0);
-        hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
-        hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
-        if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; }
-      let bonus = Math.max(0, 5*streak);
-      totalPoints += bonus;
-      sequencesCompleted++;
-      level++;
-      levelEl.textContent = level;
-      if(hintBox) hintBox.style.display='none';
-      if(sequencesCompleted % 5 === 0 && difficultyIndex < difficultyStages.length - 1){
-        difficultyIndex++;
-        showDifficultyIncreaseVisual(getCurrentDifficulty());
-      }
-      generateSequence();
-      startTimer();
-    }
-
-    score += totalPoints;
-    showScoreGain(totalPoints);
-    updateHUD();
-    renderSequence();
-    showToast(`Correct! +${totalPoints}`);
-
-  } else {
-    lives--;
-    streak = 0;
-    updateHUD();
-    showToast('Wrong — life lost');
-    if(lives <= 0){ endGame(); return; }
-  }
-  numInput.value='';
-}
-
-
-  function skipSequence(){
-  revealUsedThisSequence = false;
-  hintBtn.disabled = (hintsRemaining <= 0);
-  hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
-  hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
-  if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; } lives--; updateHUD(); generateSequence(); startTimer(); showToast('Skipped (−1 life)'); if(lives<=0) endGame(); }
-
-  function useHint(){
-    if(hintBtn.disabled) return; // prevent double use before reset
-
-    if(!current){ showToast('No active sequence'); return; }
-    if(hintsRemaining <= 0){ showToast('No hints left'); return; }
-    hintsRemaining--; if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining;
-    if(hintBox) { hintBox.textContent = current.ruleText || '—'; hintBox.style.display = 'block'; }
-    showToast('Hint shown');
-    hintBtn.disabled = true;
-    hintBtn.style.opacity = '0.5';
-    hintBtn.style.cursor = 'not-allowed';
-  }
-
-  function onTimeout(){ lives--; streak = 0; updateHUD(); showToast('Time up — life lost'); if(lives <= 0){ endGame(); return; } generateSequence(); startTimer(); }
-
-  
-function showScoreGain(amount) {
-  const scoreEl = document.getElementById('score');
-  const statContainer = scoreEl.parentElement;
-  const fly = document.createElement('div');
-  fly.className = 'score-fly';
-  fly.textContent = `+${amount}`;
-  statContainer.appendChild(fly);
-
-  // Center horizontally over the score number, then shift 5px right
-  const scoreRect = scoreEl.getBoundingClientRect();
-  const containerRect = statContainer.getBoundingClientRect();
-  const left = (scoreRect.left - containerRect.left) + (scoreRect.width / 2) + 20;
-
-  fly.style.left = left + 'px';
-  fly.style.top = (scoreRect.top - containerRect.top - 5) + 'px';
-  fly.style.transform = 'translateX(-50%)';
-
-  setTimeout(() => fly.remove(), 1000);
-}
-
-function updateHUD(){ if(scoreEl) scoreEl.textContent = score; if(livesEl) livesEl.textContent = lives; if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining; if(streakEl) streakEl.textContent = streak; if(levelEl) levelEl.textContent = level; 
-  // Disable/enable Skip button based on lives
-  if (lives <= 0) {
-    nextBtn.disabled = true;
-    nextBtn.style.opacity = '0.5';
-    nextBtn.style.cursor = 'not-allowed';
-  } else {
-    nextBtn.disabled = false;
-    nextBtn.style.opacity = '';
-    nextBtn.style.cursor = '';
-  }
-}
+  function updateHUD(){ const scoreEl=document.getElementById('score'); const livesEl=document.getElementById('lives'); const hintsRemainingEl=document.getElementById('hintsRemaining'); const streakEl=document.getElementById('streak'); const levelEl=document.getElementById('level'); if(scoreEl) scoreEl.textContent = score; if(livesEl) livesEl.textContent = lives; if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining; if(streakEl) streakEl.textContent = streak; if(levelEl) levelEl.textContent = level; if (lives <= 0) { nextBtn.disabled = true; nextBtn.style.opacity = '0.5'; nextBtn.style.cursor = 'not-allowed'; } else { nextBtn.disabled = false; nextBtn.style.opacity = ''; nextBtn.style.cursor = ''; } }
 
   function endGame(){ clearInterval(timerInterval); showToast('Game Over',2000); seqArea.textContent = 'GAME OVER'; restartBtn.style.display = 'block'; }
 
-  function restartGame(){
-  
-  // full reset
-  revealUsedThisSequence = false;
-  score = 0; lives = 3; hintsRemaining = 3; streak = 0; sequencesCompleted = 0; level = 1; difficultyIndex = 0;
-  // re-enable hint button explicitly (will stay enabled because flag reset and hints > 0)
-  hintBtn.disabled = false; hintBtn.style.opacity = ''; hintBtn.style.cursor = '';
-revealUsedThisSequence = false; if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; } score=0; lives=3; hintsRemaining=3; streak=0; sequencesCompleted=0; level=1; difficultyIndex=0; updateHUD(); generateSequence(); startTimer(); restartBtn.style.display='none'; showToast('Restarted'); }
+  function checkAnswer(){ const val = (numInput.value || '').toString().trim(); if(val === ''){ showToast('Enter a number'); return; } const num = Number(val); if(Number.isNaN(num)){ showToast('Invalid number'); numInput.value=''; return; } if(!current || !Array.isArray(current.blanks) || current.blanks.length === 0){ showToast('No blanks — press Next'); numInput.value=''; return; } const idx = current.blanks[0]; const correct = Number(current.answers[0]); if(num === correct){ current.arr[idx] = correct; current.blanks.shift(); current.answers.shift(); let totalPoints = 0; let points = 10 + Math.floor(10*(streak*0.2)); totalPoints += points; streak++; if(!current.blanks || current.blanks.length === 0){ revealUsedThisSequence = false; hintBtn.disabled = (hintsRemaining <= 0); hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : ''; hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : ''; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; } let bonus = Math.max(0, 5*streak); totalPoints += bonus; sequencesCompleted++; level++; levelEl.textContent = level; if(hintBox) hintBox.style.display='none'; if(sequencesCompleted % 5 === 0 && difficultyIndex < ['easy','medium','hard','expert'].length - 1){ difficultyIndex++; showDifficultyIncreaseVisual(getCurrentDifficulty()); } generateSequence(); startTimer(); } score += totalPoints; showScoreGain(totalPoints); updateHUD(); renderSequence(); showToast(`Correct! +${totalPoints}`); } else { lives--; streak = 0; updateHUD(); showToast('Wrong — life lost'); if(lives <= 0){ endGame(); return; } } numInput.value=''; }
 
-  // keyboard builder - do not change layout; simple buttons
-  (function buildKeyboard(){
-    if(!keyboardEl) return;
-    keyboardEl.innerHTML='';
-    const layout = [
-      ['1','2','3'],
-      ['4','5','6'],
-      ['7','8','9'],
-      ['-','0','⌫'],
-      ['','OK','']
-    ];
-    layout.forEach(row=>{
-      const rowDiv = document.createElement('div'); rowDiv.className='key-row';
-      row.forEach(k=>{
-        if(k===''){ const spacer = document.createElement('div'); spacer.className='key-spacer'; rowDiv.appendChild(spacer); return; }
-        const btn = document.createElement('button');
-        if(k==='⌫'){ btn.textContent='⌫'; btn.addEventListener('click', ()=>{ numInput.value = (numInput.value||'').toString().slice(0,-1); }); }
-        else if(k==='OK'){ btn.textContent='OK'; btn.addEventListener('click', ()=> checkAnswer()); }
-        else { btn.textContent = k; btn.addEventListener('click', ()=> { numInput.value = (numInput.value||'').toString() + k; }); }
-        rowDiv.appendChild(btn);
-      });
-      keyboardEl.appendChild(rowDiv);
-    });
-  })();
+  function skipSequence(){ revealUsedThisSequence = false; hintBtn.disabled = (hintsRemaining <= 0); hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : ''; hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : ''; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; } lives--; updateHUD(); generateSequence(); startTimer(); showToast('Skipped (−1 life)'); if(lives<=0) endGame(); }
 
-  // Listeners
+  function useHint(){ if(hintBtn.disabled) return; if(!current){ showToast('No active sequence'); return; } if(hintsRemaining <= 0){ showToast('No hints left'); return; } hintsRemaining--; if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.textContent = current.ruleText || '—'; hintBox.style.display = 'block'; } showToast('Hint shown'); hintBtn.disabled = true; hintBtn.style.opacity = '0.5'; hintBtn.style.cursor = 'not-allowed'; }
+
+  function onTimeout(){ lives--; streak = 0; updateHUD(); showToast('Time up — life lost'); if(lives <= 0){ endGame(); return; } generateSequence(); startTimer(); }
+
+  // keyboard
+  (function buildKeyboard(){ if(!keyboardEl) return; keyboardEl.innerHTML=''; const layout = [['1','2','3'],['4','5','6'],['7','8','9'],['-','0','⌫'],['','OK','']]; layout.forEach(row=>{ const rowDiv = document.createElement('div'); rowDiv.className='key-row'; row.forEach(k=>{ if(k===''){ const spacer = document.createElement('div'); spacer.className='key-spacer'; rowDiv.appendChild(spacer); return; } const btn = document.createElement('button'); if(k==='⌫'){ btn.textContent='⌫'; btn.addEventListener('click', ()=>{ numInput.value = (numInput.value||'').toString().slice(0,-1); }); } else if(k==='OK'){ btn.textContent='OK'; btn.addEventListener('click', ()=> checkAnswer()); } else { btn.textContent = k; btn.addEventListener('click', ()=> { numInput.value = (numInput.value||'').toString() + k; }); } rowDiv.appendChild(btn); }); keyboardEl.appendChild(rowDiv); }); })();
+
   nextBtn && nextBtn.addEventListener('click', skipSequence);
   hintBtn && hintBtn.addEventListener('click', useHint);
   restartBtn && restartBtn.addEventListener('click', restartGame);
-  numInput && numInput.addEventListener('keydown', e=>{
-    
-  if(e.key==='Enter') checkAnswer();
-});
+  numInput && numInput.addEventListener('keydown', e=>{ if(e.key==='Enter') checkAnswer(); });
 
-  // window error catcher
+  function restartGame(){ revealUsedThisSequence = false; score = 0; lives = 3; hintsRemaining = 3; streak = 0; sequencesCompleted = 0; level = 1; difficultyIndex = 0; hintBtn.disabled = false; hintBtn.style.opacity = ''; hintBtn.style.cursor = ''; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; } updateHUD(); generateSequence(); startTimer(); restartBtn.style.display='none'; showToast('Restarted'); }
+
   window.onerror = function(msg, src, line, col, err){ console.error('Caught', msg, 'at', src+':'+line+':'+col, err); showToast('Error: '+ (msg && msg.toString().slice(0,48)), 4000); };
 
   // start
   updateHUD(); generateSequence(); startTimer();
-})();</script>
+})();
+  
+// Prevent iOS bounce and zoom
+document.addEventListener('gesturestart', function (e) {
+  e.preventDefault();
+});
 
+document.addEventListener('touchmove', function (e) {
+  if (e.scale !== 1) e.preventDefault(); // stop pinch zoom
+}, { passive: false });
+
+// Prevent pull-to-refresh overscroll
+document.body.style.overscrollBehavior = 'none';
+document.body.addEventListener('touchmove', function (e) {
+  if (window.scrollY === 0 && e.touches[0].clientY > 0) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+</script>
 </body>
 </html>
