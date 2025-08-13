@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=0.8" />
   <title>The Sequence Protocol</title>
   <style>
     :root{--bg:#0f1724;--card:#0b1220;--accent:#7dd3fc;--muted:#94a3b8;--danger:#fb7185}
@@ -52,9 +52,18 @@
     @keyframes scoreFlyUp { 0% { opacity: 0; transform: translateY(0px);} 10% { opacity: 1;} 100% { opacity: 0; transform: translateY(-25px);} }
   
 @media (max-width: 600px) {
-  body {
-    font-size: 0.9em;
+  .app {
+    transform: scale(0.8);
+    transform-origin: top center;
   }
+  body {
+    font-size: 1em; /* maintain readable text */
+  }
+  button, input, select {
+    font-size: 1em;
+    padding: 0.5em 0.7em;
+  }
+}
   button, input, select {
     font-size: 0.9em;
     padding: 0.4em 0.6em;
@@ -62,7 +71,7 @@
   .sequence-container {
     transform: scale(0.95);
   }
-}
+
 
 </style>
 </head>
@@ -521,14 +530,6 @@ document.addEventListener('gesturestart', function (e) {
 
 document.addEventListener('touchmove', function (e) {
   if (e.scale !== 1) e.preventDefault(); // stop pinch zoom
-}, { passive: false });
-
-// Prevent pull-to-refresh overscroll
-document.body.style.overscrollBehavior = 'none';
-document.body.addEventListener('touchmove', function (e) {
-  if (window.scrollY === 0 && e.touches[0].clientY > 0) {
-    e.preventDefault();
-  }
 }, { passive: false });
 
 </script>
