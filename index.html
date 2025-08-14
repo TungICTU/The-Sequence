@@ -80,6 +80,22 @@ html, body {
   height: 100%;
 }
 
+
+    .play-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: var(--accent);
+      color: #022;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .play-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    .play-btn:active { transform: translateY(0px) scale(0.97); filter: brightness(0.95); }
+    
 </style>
 </head>
 <body>
@@ -96,7 +112,7 @@ html, body {
 
     <div class="board">
       <div class="small">Streak: <span id="streak">0</span></div>
-      <div id="sequenceArea" class="sequence" aria-live="polite">Loading sequence...</div>
+      <div id="sequenceArea" class="sequence" aria-live="polite"><button id="playBtn" class="play-btn">▶ Play</button></div>
       <div class="controls">
         <input id="numInput" class="num-input" type="text" inputmode="numeric" placeholder="Enter number" />
         <div class="keyboard" id="keyboard"></div>
@@ -170,7 +186,7 @@ function showScoreGain(amount) {
 }
 
 // Global primes list (shared by generator + solver)
-const PRIMES = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499,503,509,521,523,541,547,557,563,569,571,577,587,593,599,601,607,613,617,619,631,641,643,647,653,659,661,673,677,683,691,701,709,719,727,733,739,743,751,757,761,769,773,787,797,809,811,821,823,827,829,839,853,857,859,863,877,881,883,887,907,911,919,929,937,941,947,953,967,971,977,983,991,997];
+const PRIMES = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97];
 
 // ===== Solvability / rule detection =====
 function idxes(n){return [...Array(n).keys()];}
@@ -421,8 +437,8 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
   function updateTimer(){ const mm = String(Math.floor(timeLeft/60)).padStart(2,'0'); const ss = String(timeLeft%60).padStart(2,'0'); if(timerEl) timerEl.textContent = mm+':'+ss; }
 
       const opRanges = {
-    add: { easy: { start: [1, 50], step: [1, 10] }, medium: { start: [1, 500], step: [1, 100] }, hard: { start: [500, 5000], step: [50, 200] }, expert: { start: [1000, 10000], step: [100, 500] } },
-    sub: { easy: { start: [10, 100], step: [1, 10] }, medium: { start: [100, 500], step: [10, 100] }, hard: { start: [500, 5000], step: [50, 200] }, expert: { start: [1000, 10000], step: [100, 500] } },
+    add: { easy: { start: [1, 50], step: [1, 10] }, medium: { start: [1, 100], step: [1, 100] }, hard: { start: [1, 1000], step: [1, 200] }, expert: { start: [1, 10000], step: [1, 500] } },
+    sub: { easy: { start: [1, 100], step: [1, 10] }, medium: { start: [1, 500], step: [1, 100] }, hard: { start: [1, 5000], step: [1, 200] }, expert: { start: [1, 50000], step: [1, 500] } },
     mul: { easy: { start: [1, 5], step: [2, 5] }, medium: { start: [1, 20], step: [2, 9] }, hard: { start: [5, 50], step: [2, 12] }, expert: { start: [10, 100], step: [2, 15] } },
     div: { easy: { start: [1, 5], step: [2, 5] }, medium: { start: [5, 50], step: [2, 9] }, hard: { start: [50, 200], step: [2, 12] }, expert: { start: [100, 500], step: [2, 15] } }
   };
@@ -502,13 +518,46 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
 
   function renderSequence(){ if(!current || !Array.isArray(current.arr)) return; const parts = current.arr.map((n,i)=>{ if(Array.isArray(current.blanks) && current.blanks.includes(i)){ let cls = 'slot question'; if(i === current.blanks[0]) cls += ' active-question'; return `<span class="${cls}" data-idx="${i}">?</span>`; } return `<span class="slot">${n}</span>`; }); seqArea.innerHTML = parts.join(', '); if(ruleHintEl) ruleHintEl.textContent = '—'; }
 
-  function updateHUD(){ const scoreEl=document.getElementById('score'); const livesEl=document.getElementById('lives'); const hintsRemainingEl=document.getElementById('hintsRemaining'); const streakEl=document.getElementById('streak'); const levelEl=document.getElementById('level'); if(scoreEl) scoreEl.textContent = score; if(livesEl) livesEl.textContent = lives; if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining; if(streakEl) streakEl.textContent = streak; if(levelEl) levelEl.textContent = level; if (lives <= 0) { nextBtn.disabled = true; nextBtn.style.opacity = '0.5'; nextBtn.style.cursor = 'not-allowed'; } else { nextBtn.disabled = false; nextBtn.style.opacity = ''; nextBtn.style.cursor = ''; } }
+  function updateHUD(){ const scoreEl=document.getElementById('score'); const livesEl=document.getElementById('lives'); const hintsRemainingEl=document.getElementById('hintsRemaining'); const streakEl=document.getElementById('streak'); const levelEl=document.getElementById('level'); if(scoreEl) scoreEl.textContent = score; if(livesEl) livesEl.textContent = lives; if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining; if(streakEl) streakEl.textContent = streak; if(levelEl) levelEl.textContent = level; if (lives <= 0 || score == 0) { nextBtn.disabled = true; nextBtn.style.opacity = '0.5'; nextBtn.style.cursor = 'not-allowed'; } else { nextBtn.disabled = false; nextBtn.style.opacity = ''; nextBtn.style.cursor = ''; } }
 
   function endGame(){ clearInterval(timerInterval); showToast('Game Over',2000); seqArea.textContent = 'GAME OVER'; restartBtn.style.display = 'block'; }
 
   function checkAnswer(){ const val = (numInput.value || '').toString().trim(); if(val === ''){ showToast('Enter a number'); return; } const num = Number(val); if(Number.isNaN(num)){ showToast('Invalid number'); numInput.value=''; return; } if(!current || !Array.isArray(current.blanks) || current.blanks.length === 0){ showToast('No blanks — press Next'); numInput.value=''; return; } const idx = current.blanks[0]; const correct = Number(current.answers[0]); if(num === correct){ current.arr[idx] = correct; current.blanks.shift(); current.answers.shift(); let totalPoints = 0; let points = 10 + Math.floor(10*(streak*0.2)); totalPoints += points; streak++; if(!current.blanks || current.blanks.length === 0){ revealUsedThisSequence = false; hintBtn.disabled = (hintsRemaining <= 0); hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : ''; hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : ''; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; } let bonus = Math.max(0, 5*streak); totalPoints += bonus; sequencesCompleted++; level++; levelEl.textContent = level; if(hintBox) hintBox.style.display='none'; if(sequencesCompleted % 5 === 0 && difficultyIndex < ['easy','medium','hard','expert'].length - 1){ difficultyIndex++; showDifficultyIncreaseVisual(getCurrentDifficulty()); } generateSequence(); startTimer(); } score += totalPoints; showScoreGain(totalPoints); updateHUD(); renderSequence(); showToast(`Correct! +${totalPoints}`); } else { lives--; streak = 0; updateHUD(); showToast('Wrong — life lost'); if(lives <= 0){ endGame(); return; } } numInput.value=''; }
 
-  function skipSequence(){ revealUsedThisSequence = false; hintBtn.disabled = (hintsRemaining <= 0); hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : ''; hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : ''; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; } lives--; updateHUD(); generateSequence(); startTimer(); showToast('Skipped (−1 life)'); if(lives<=0) endGame(); }
+  
+function skipSequence() {
+  revealUsedThisSequence = false;
+
+  // Reset hint button state
+  hintBtn.disabled = (hintsRemaining <= 0);
+  hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
+  hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
+
+  // Hide hint box
+  const hintBox = document.getElementById('hintBox');
+  if (hintBox) {
+    hintBox.style.display = 'none';
+    hintBox.textContent = '';
+  }
+
+  // Lose a life & reset streak
+  lives--;
+  streak = 0;
+  updateHUD(); // Disable Skip if no lives left
+
+  if (lives <= 0) {
+    endGame();
+    return;
+  }
+
+  // Show skip message
+  showToast('Skipped (−1 life)');
+
+  // Generate a brand new sequence & restart timer
+  generateSequence();
+  startTimer();
+}
+
 
   function useHint(){ if(hintBtn.disabled) return; if(!current){ showToast('No active sequence'); return; } if(hintsRemaining <= 0){ showToast('No hints left'); return; } hintsRemaining--; if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.textContent = current.ruleText || '—'; hintBox.style.display = 'block'; } showToast('Hint shown'); hintBtn.disabled = true; hintBtn.style.opacity = '0.5'; hintBtn.style.cursor = 'not-allowed'; }
 
@@ -522,12 +571,60 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
   restartBtn && restartBtn.addEventListener('click', restartGame);
   numInput && numInput.addEventListener('keydown', e=>{ if(e.key==='Enter') checkAnswer(); });
 
-  function restartGame(){ revealUsedThisSequence = false; score = 0; lives = 3; hintsRemaining = 3; streak = 0; sequencesCompleted = 0; level = 1; difficultyIndex = 0; hintBtn.disabled = false; hintBtn.style.opacity = ''; hintBtn.style.cursor = ''; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; } updateHUD(); generateSequence(); startTimer(); restartBtn.style.display='none'; showToast('Restarted'); }
+  hintBtn.disabled = true;
+  hintBtn.style.opacity = '0.5';
+  hintBtn.style.cursor = 'not-allowed';
+
+  nextBtn.disabled = true;
+  nextBtn.style.opacity = '0.5';
+  nextBtn.style.cursor = 'not-allowed';
+
+  function restartGame(){
+    revealUsedThisSequence = false;
+    score = 0; lives = 3; hintsRemaining = 3; streak = 0; sequencesCompleted = 0; level = 1; difficultyIndex = 0;
+    // Keep Skip & Reveal disabled until Play is pressed
+    hintBtn.disabled = true;
+    hintBtn.style.opacity = '0.5';
+    hintBtn.style.cursor = 'not-allowed';
+
+    nextBtn.disabled = true;
+    nextBtn.style.opacity = '0.5';
+    nextBtn.style.cursor = 'not-allowed';
+    
+    const hintBox = document.getElementById('hintBox'); if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; }
+    
+    restartBtn.style.display='none';
+    seqArea.innerHTML = '<button id="playBtn" class="play-btn">' + ('▶ Play') + '</button>';
+    const pb = document.getElementById('playBtn'); if(pb) pb.addEventListener('click', startGame);
+  }
 
   window.onerror = function(msg, src, line, col, err){ console.error('Caught', msg, 'at', src+':'+line+':'+col, err); showToast('Error: '+ (msg && msg.toString().slice(0,48)), 4000); };
+  // Play button controlled start
+  function startGame(){
+    const btn = document.getElementById('playBtn');
+    if(btn) btn.style.display = 'none';
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = '';
+      nextBtn.style.cursor = '';
+
+      hintBtn.disabled = (hintsRemaining <= 0);
+      hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
+      hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
+
+      generateSequence();
+      startTimer();
+  }
+  (function attachPlayInit(){
+    const b = document.getElementById('playBtn');
+    if(b) b.addEventListener('click', startGame);
+  })();
+
+  // Modify restartGame to show a Play Again button instead of auto-starting
+
 
   // start
-  updateHUD(); generateSequence(); startTimer();
+  updateHUD();
+  // wait for user to click Play
 })();
   
 // Prevent iOS bounce and zoom
@@ -539,6 +636,16 @@ document.addEventListener('touchmove', function (e) {
   if (e.scale !== 1) e.preventDefault(); // stop pinch zoom
 }, { passive: false });
 
+// Prevent double-tap zoom
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function (e) {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
+}, { passive: false });
+
 // Prevent pull-to-refresh overscroll
 document.body.style.overscrollBehavior = 'none';
 document.body.addEventListener('touchmove', function (e) {
@@ -547,7 +654,7 @@ document.body.addEventListener('touchmove', function (e) {
   }
 }, { passive: false });
 
+
 </script>
 </body>
 </html>
-
