@@ -185,6 +185,16 @@ function showScoreGain(amount) {
   setTimeout(() => fly.remove(), 1000);
 }
 
+function maybeReverseSequence(seq, ruleText) {
+  if (Math.random() < 0.5) {
+    return {
+      arr: seq.slice().reverse(),
+      ruleText: ruleText + " (reversed)"
+    };
+  }
+  return { arr: seq, ruleText };
+}
+
 // Global primes list (shared by generator + solver)
 const PRIMES = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97];
 
@@ -470,9 +480,30 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
       const type = randInt(1, 5);
       let len; if (level <= 10) { if (type === 2 || type === 3) len = randInt(4,5); else len = randInt(4,6); } else { if (type === 2 || type === 3) len = randInt(5,7); else len = randInt(5,9); }
       if (type === 1) { return this.medium(difficulty); }
-      else if (type === 2) { const start = randInt(1, 5); const arr = Array.from({ length: len }, (_, i) => (start + i) ** 2); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Squares starting at ${start}²` }; }
-      else if (type === 3) { const startIdx = randInt(0, PRIMES.length - len); const arr = PRIMES.slice(startIdx, startIdx + len); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Prime numbers in order` }; }
-      else if (type === 4) { const start = randInt(1, 4); const arr = Array.from({ length: len }, (_, i) => (start + i) ** 3); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Cubes starting at ${start}³` }; }
+      else if (type === 2) { // Squares
+      const start = randInt(1, 5);
+      let arr = Array.from({ length: len }, (_, i) => (start + i) ** 2);
+      let rule = `Squares starting at ${start}²`;
+      ({ arr, ruleText: rule } = maybeReverseSequence(arr, rule));
+      const blanks = pickBlanksDynamic(len, level);
+      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule };
+    }
+    else if (type === 3) { // Primes
+      const startIdx = randInt(0, PRIMES.length - len);
+      let arr = PRIMES.slice(startIdx, startIdx + len);
+      let rule = `Prime numbers in order`;
+      ({ arr, ruleText: rule } = maybeReverseSequence(arr, rule));
+      const blanks = pickBlanksDynamic(len, level);
+      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule };
+    }
+    else if (type === 4) { // Cubes
+      const start = randInt(1, 4);
+      let arr = Array.from({ length: len }, (_, i) => (start + i) ** 3);
+      let rule = `Cubes starting at ${start}³`;
+      ({ arr, ruleText: rule } = maybeReverseSequence(arr, rule));
+      const blanks = pickBlanksDynamic(len, level);
+      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule };
+    }
       else { const a = randInt(1, 9), b = randInt(1, 9); const arr = [a, b]; for (let i = 2; i < len; i++) arr.push(arr[i - 1] + arr[i - 2]); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Fibonacci starting with ${a}, ${b}` }; }
     },
 
@@ -480,7 +511,14 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
       const type = randInt(1, 5);
       let len; if (level <= 10) { if (type === 2 || type === 3) len = randInt(4,5); else len = randInt(4,6); } else { if (type === 2 || type === 3) len = randInt(5,7); else if (type === 5) len = randInt(7,9); else len = randInt(5,9); }
       if (type === 1) { return this.hard(difficulty); }
-      else if (type === 2) { const start = randInt(1, 5); const arr = Array.from({ length: len }, (_, i) => factorial(start + i)); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Factorials starting at ${start}!` }; }
+      else if (type === 2) { // Factorials
+      const start = randInt(1, 5);
+      let arr = Array.from({ length: len }, (_, i) => factorial(start + i));
+      let rule = `Factorials starting at ${start}!`;
+      ({ arr, ruleText: rule } = maybeReverseSequence(arr, rule));
+      const blanks = pickBlanksDynamic(len, level);
+      return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule };
+    }
       else if (type === 3) { const base = randInt(2, 4); const arr = Array.from({ length: len }, (_, i) => base ** (i + 1)); const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Powers of ${base}` }; }
       else if (type === 4) { let start = randInt(10, 50); const arr = [start]; for (let i = 1; i < len; i++) { start = String(start).split('').reduce((a, b) => a + +b, 0); arr.push(start); } const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: `Sum of digits of previous number` }; }
       else { const ops = ["add", "sub", "mul", "div"]; let op1 = ops.splice(randInt(0, ops.length - 1), 1)[0]; let op2 = ops[randInt(0, ops.length - 1)]; let val1 = randInt(1, 6), val2 = randInt(2, 6); let arr = [randInt(5, 20)]; for (let i = 1; i < len; i++) { let prev = arr[i - 1]; let op = (i % 2 === 1) ? op1 : op2; let val = (i % 2 === 1) ? val1 : val2; if (op === "add") prev += val; else if (op === "sub") prev -= val; else if (op === "mul") prev *= val; else if (op === "div") { if (prev % val !== 0) prev -= (prev % val); prev /= val; } arr.push(prev); } const opName = o => o === "add" ? "Add" : o === "sub" ? "Subtract" : o === "mul" ? "Multiply by" : "Divide by"; const rule = `${opName(op1)} ${val1}, then ${opName(op2)} ${val2}, repeat`; const blanks = pickBlanksDynamic(len, level); return { arr, blanks, answers: blanks.map(i => arr[i]), ruleText: rule }; }
