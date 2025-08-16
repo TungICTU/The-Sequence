@@ -74,13 +74,6 @@
   }
 
 
-
-html, body {
-  background-color: linear-gradient(180deg,#071021 0%, #081328 100%);
-  height: 100%;
-}
-
-
     .play-btn {
       display: inline-block;
       padding: 12px 24px;
@@ -96,6 +89,17 @@ html, body {
     .play-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
     .play-btn:active { transform: translateY(0px) scale(0.97); filter: brightness(0.95); }
     
+
+/* Gamemode buttons layout fix */
+#modeSelect {
+  display: none; /* hidden by default */
+  margin-top: 10px;
+}
+#modeSelect[style*="block"] {
+  display: flex !important;
+  justify-content: center;
+  gap: 10px;
+}
 </style>
 </head>
 <body>
@@ -103,16 +107,20 @@ html, body {
     <header>
       <h1>The Sequence</h1>
       <div class="hud">
-        <div class="stat"><small>Timer</small><div id="timer" class="big">01:00</div></div>
+        <div class="stat" id="timerStat"><small>Timer</small><div id="timer" class="big">01:00</div></div>
         <div class="stat" style="position:relative;"><small>Score</small><div id="score" class="big">0</div></div>
         <div class="stat"><small>Level</small><div id="level" class="big">1</div></div>
-        <div class="stat"><small>Lives</small><div id="lives" class="big lives">3</div></div>
+        <div class="stat" id="livesStat"><small>Lives</small><div id="lives" class="big lives">3</div></div>
       </div>
     </header>
 
     <div class="board">
       <div class="small">Streak: <span id="streak">0</span></div>
       <div id="sequenceArea" class="sequence" aria-live="polite"><button id="playBtn" class="play-btn">▶ Play</button></div>
+      <div id="modeSelect" style="display:none; margin-top:10px;">
+        <button id="survivalBtn" class="play-btn">Survival Mode</button>
+        <button id="arcadeBtn" class="play-btn">Arcade Mode</button>
+      </div>
       <div class="controls">
         <input id="numInput" class="num-input" type="text" inputmode="numeric" placeholder="Enter number" />
         <div class="keyboard" id="keyboard"></div>
@@ -411,7 +419,6 @@ function isHumanlySolvable(out){
 }
 
 // ====== Existing game code (with minor taps to use solvable generation) ======
-function isIntegerDivisionPossible(arr) { for (let i = 1; i < arr.length; i++) { if (arr[i] === 0) return false; if (arr[i-1] % arr[i] !== 0) return false; } return true; }
 function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { if (arr[i] === 0) return false; if (arr[i-1] % arr[i] !== 0) return false; } return true; }
 
 (function(){
@@ -432,7 +439,14 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
   const boardEl = document.querySelector('.board') || document.body;
   const hintBox = document.getElementById('hintBox');
   const difficultyOverlay = document.getElementById('difficultyOverlay');
+  const timerStat = document.getElementById('timerStat');
+  const livesStat = document.getElementById('livesStat');
+  const modeSelect = document.getElementById('modeSelect');
+  const playBtn = document.getElementById('playBtn');
+  const survivalBtn = document.getElementById('survivalBtn');
+  const arcadeBtn = document.getElementById('arcadeBtn');
 
+  let gameMode = null; // 'survival' | 'arcade'
   let score = 0, lives = 3, timeLeft = 60, timerInterval = null;
   let current = null;
   let hintsRemaining = 3, streak = 0;
@@ -443,10 +457,12 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
 
   function showToast(txt, ms=1400){ if(!toast) return; toast.textContent = txt; toast.style.display='block'; setTimeout(()=> toast.style.display='none', ms); }
   function showDifficultyIncreaseVisual(newDiff){ if(!difficultyOverlay) return; difficultyOverlay.textContent = 'DIFFICULTY: ' + (newDiff||'').toUpperCase(); difficultyOverlay.style.display = 'block'; difficultyOverlay.style.opacity = '1'; setTimeout(()=>{ difficultyOverlay.style.opacity = '0'; setTimeout(()=> difficultyOverlay.style.display='none', 500); }, 1400); }
-  function startTimer(){ clearInterval(timerInterval); timeLeft = 60; updateTimer(); timerInterval = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0) onTimeout(); },1000); }
+  function startTimer(){ clearInterval(timerInterval); timerInterval = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0) onTimeout(); },1000); }
+  function stopTimer(){ clearInterval(timerInterval); timerInterval=null; }
+  function resetTimerDisplay(){ timeLeft=60; updateTimer(); }
   function updateTimer(){ const mm = String(Math.floor(timeLeft/60)).padStart(2,'0'); const ss = String(timeLeft%60).padStart(2,'0'); if(timerEl) timerEl.textContent = mm+':'+ss; }
 
-      const opRanges = {
+  const opRanges = {
     add: { easy: { start: [1, 50], step: [1, 10] }, medium: { start: [1, 100], step: [1, 100] }, hard: { start: [1, 1000], step: [1, 200] }, expert: { start: [1, 10000], step: [1, 500] } },
     sub: { easy: { start: [1, 100], step: [1, 10] }, medium: { start: [1, 500], step: [1, 100] }, hard: { start: [1, 5000], step: [1, 200] }, expert: { start: [1, 50000], step: [1, 500] } },
     mul: { easy: { start: [1, 5], step: [2, 5] }, medium: { start: [1, 20], step: [2, 9] }, hard: { start: [5, 50], step: [2, 12] }, expert: { start: [10, 100], step: [2, 15] } },
@@ -527,7 +543,6 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
 
   function normalizeBlanks(out){ if(!out || !Array.isArray(out.blanks)) return out; if(!Array.isArray(out.answers) || out.answers.length !== out.blanks.length){ out.answers = out.blanks.map(i=>out.arr[i]); } else { out.answers = out.answers.map(a=>Number(a)); } const pairs = out.blanks.map((b,i)=> ({b:b, ans: Number(out.answers[i])})); pairs.sort((x,y)=> x.b - y.b); out.blanks = pairs.map(p=>p.b); out.answers = pairs.map(p=>p.ans); return out; }
 
-  // NEW: generate until "humanly solvable" (unique fill from visibles)
   function generateSolvable(){
     let attempt=0;
     while(true){
@@ -535,7 +550,7 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
       const raw = generators[getCurrentDifficulty()]();
       const out = normalizeBlanks(raw);
       if(isHumanlySolvable(out)) return out;
-      if(attempt>100){ // fallback: force arithmetic easy to avoid lock
+      if(attempt>100){
         const len=randInt(5,7), start=randInt(1,20), step=randInt(1,9);
         const arr=Array.from({length:len},(_,i)=> start+step*i);
         const blanks=pickBlanksDynamic(len, level);
@@ -548,58 +563,132 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
   let revealUsedThisSequence = false;
   function generateSequence(){
     revealUsedThisSequence = false;
+    hintBtn.disabled = (hintsRemaining <= 0);
+    hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
+    hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
     const out = generateSolvable();
     current = { arr: out.arr.slice(), blanks: out.blanks.slice(), answers: out.answers.slice(), ruleText: out.ruleText || out.hint || 'Pattern' };
     console.groupCollapsed('Generated sequence'); console.log(out.arr); console.log('blanks', out.blanks); console.log('answers', out.answers); console.groupEnd();
     renderSequence();
   }
 
-  function renderSequence(){ if(!current || !Array.isArray(current.arr)) return; const parts = current.arr.map((n,i)=>{ if(Array.isArray(current.blanks) && current.blanks.includes(i)){ let cls = 'slot question'; if(i === current.blanks[0]) cls += ' active-question'; return `<span class="${cls}" data-idx="${i}">?</span>`; } return `<span class="slot">${n}</span>`; }); seqArea.innerHTML = parts.join(', '); if(ruleHintEl) ruleHintEl.textContent = '—'; }
+  function renderSequence(){ if(!current || !Array.isArray(current.arr)) return; const parts = current.arr.map((n,i)=>{ if(Array.isArray(current.blanks) && current.blanks.includes(i)){ let cls = 'slot question'; if(i === current.blanks[0]) cls += ' active-question'; return `<span class=\"${cls}\" data-idx=\"${i}\">?</span>`; } return `<span class=\"slot\">${n}</span>`; }); seqArea.innerHTML = parts.join(', '); if(ruleHintEl) ruleHintEl.textContent = '—'; }
 
-  function updateHUD(){ const scoreEl=document.getElementById('score'); const livesEl=document.getElementById('lives'); const hintsRemainingEl=document.getElementById('hintsRemaining'); const streakEl=document.getElementById('streak'); const levelEl=document.getElementById('level'); if(scoreEl) scoreEl.textContent = score; if(livesEl) livesEl.textContent = lives; if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining; if(streakEl) streakEl.textContent = streak; if(levelEl) levelEl.textContent = level; if (lives <= 0 || score == 0) { nextBtn.disabled = true; nextBtn.style.opacity = '0.5'; nextBtn.style.cursor = 'not-allowed'; } else { nextBtn.disabled = false; nextBtn.style.opacity = ''; nextBtn.style.cursor = ''; } }
-
-  function endGame(){ clearInterval(timerInterval); showToast('Game Over',2000); seqArea.textContent = 'GAME OVER'; restartBtn.style.display = 'block'; }
-
-  function checkAnswer(){ const val = (numInput.value || '').toString().trim(); if(val === ''){ showToast('Enter a number'); return; } const num = Number(val); if(Number.isNaN(num)){ showToast('Invalid number'); numInput.value=''; return; } if(!current || !Array.isArray(current.blanks) || current.blanks.length === 0){ showToast('No blanks — press Next'); numInput.value=''; return; } const idx = current.blanks[0]; const correct = Number(current.answers[0]); if(num === correct){ current.arr[idx] = correct; current.blanks.shift(); current.answers.shift(); let totalPoints = 0; let points = 10 + Math.floor(10*(streak*0.2)); totalPoints += points; streak++; if(!current.blanks || current.blanks.length === 0){ revealUsedThisSequence = false; hintBtn.disabled = (hintsRemaining <= 0); hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : ''; hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : ''; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; } let bonus = Math.max(0, 5*streak); totalPoints += bonus; sequencesCompleted++; level++; levelEl.textContent = level; if(hintBox) hintBox.style.display='none'; if(sequencesCompleted % 5 === 0 && difficultyIndex < ['easy','medium','hard','expert'].length - 1){ difficultyIndex++; showDifficultyIncreaseVisual(getCurrentDifficulty()); } generateSequence(); startTimer(); } score += totalPoints; showScoreGain(totalPoints); updateHUD(); renderSequence(); showToast(`Correct! +${totalPoints}`); } else { lives--; streak = 0; updateHUD(); showToast('Wrong — life lost'); if(lives <= 0){ endGame(); return; } } numInput.value=''; }
-
-  
-function skipSequence() {
-  revealUsedThisSequence = false;
-
-  // Reset hint button state
-  hintBtn.disabled = (hintsRemaining <= 0);
-  hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
-  hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
-
-  // Hide hint box
-  const hintBox = document.getElementById('hintBox');
-  if (hintBox) {
-    hintBox.style.display = 'none';
-    hintBox.textContent = '';
+  function updateHUD() {
+    if (scoreEl) scoreEl.textContent = score;
+    if (livesEl) livesEl.textContent = lives;
+    if (hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining;
+    if (streakEl) streakEl.textContent = streak;
+    if (levelEl) levelEl.textContent = level;
   }
 
-  // Lose a life & reset streak
-  lives--;
-  streak = 0;
-  updateHUD(); // Disable Skip if no lives left
-
-  if (lives <= 0) {
-    endGame();
-    return;
+  function setHUDByMode(){
+    if(gameMode==='survival'){
+      if(timerStat) timerStat.style.display='none';
+      if(livesStat) livesStat.style.display='block';
+      nextBtn.textContent = 'Skip (-1 life)';
+    }else if(gameMode==='arcade'){
+      if(timerStat) timerStat.style.display='block';
+      if(livesStat) livesStat.style.display='none';
+      nextBtn.textContent = 'Skip';
+    }
   }
 
-  // Show skip message
-  showToast('Skipped (−1 life)');
+  function endGame(msg='Game Over'){
+    stopTimer();
+    showToast(msg,2000);
+    seqArea.textContent = 'GAME OVER';
+    restartBtn.style.display = 'block';
+  }
 
-  // Generate a brand new sequence & restart timer
-  generateSequence();
-  startTimer();
-}
+  function checkAnswer(){
+    const val = (numInput.value || '').toString().trim();
+    if(val === ''){ showToast('Enter a number'); return; }
+    const num = Number(val);
+    if(Number.isNaN(num)){ showToast('Invalid number'); numInput.value=''; return; }
+    if(!current || !Array.isArray(current.blanks) || current.blanks.length === 0){ showToast('No blanks — press Next'); numInput.value=''; return; }
+    const idx = current.blanks[0];
+    const correct = Number(current.answers[0]);
 
+    if(num === correct){
+      current.arr[idx] = correct; current.blanks.shift(); current.answers.shift();
+      let totalPoints = 0; let points = 10 + Math.floor(10*(streak*0.2)); totalPoints += points; streak++;
+      if(!current.blanks || current.blanks.length === 0){
+        revealUsedThisSequence = false;
+        hintBtn.disabled = (hintsRemaining <= 0);
+        hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
+        hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
+        if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; }
+        let bonus = Math.max(0, 5*streak); totalPoints += bonus;
+        sequencesCompleted++; level++; levelEl.textContent = level;
+        if(hintBox) hintBox.style.display='none';
+        if(sequencesCompleted % 5 === 0 && difficultyIndex < ['easy','medium','hard','expert'].length - 1){
+          difficultyIndex++; showDifficultyIncreaseVisual(getCurrentDifficulty());
+        }
+        
+        if (gameMode === 'arcade') {
+          timeLeft += 30;
+          if (typeof updateTimer === 'function') updateTimer();
+          showTimerDelta('+30', 'limegreen');
+        }
+        generateSequence();
+        // Do NOT reset timer between rounds in Arcade; no timer in Survival.
+      }
+      score += totalPoints; showScoreGain(totalPoints); updateHUD(); renderSequence(); showToast(`Correct! +${totalPoints}`);
+    } else {
+      streak = 0;
+      if(gameMode==='survival'){
+        lives--; updateHUD(); showToast('Wrong — life lost');
+        if(lives <= 0){ endGame('Out of lives'); return; }
+      } else {
+        // Arcade: no lives lost
+        updateHUD(); showToast('Wrong');
+      }
+    }
+    numInput.value='';
+  }
 
-  function useHint(){ if(hintBtn.disabled) return; if(!current){ showToast('No active sequence'); return; } if(hintsRemaining <= 0){ showToast('No hints left'); return; } hintsRemaining--; if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining; const hintBox=document.getElementById('hintBox'); if(hintBox) { hintBox.textContent = current.ruleText || '—'; hintBox.style.display = 'block'; } showToast('Hint shown'); hintBtn.disabled = true; hintBtn.style.opacity = '0.5'; hintBtn.style.cursor = 'not-allowed'; }
+  function skipSequence() {
+    revealUsedThisSequence = false;
+    hintBtn.disabled = (hintsRemaining <= 0);
+    hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
+    hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
 
-  function onTimeout(){ lives--; streak = 0; updateHUD(); showToast('Time up — life lost'); if(lives <= 0){ endGame(); return; } generateSequence(); startTimer(); }
+    if (hintBox) { hintBox.style.display = 'none'; hintBox.textContent = ''; }
+
+    streak = 0;
+    if(gameMode==='survival'){
+      lives--; updateHUD();
+      if (lives <= 0) { endGame('Out of lives'); return; }
+      showToast('Skipped (−1 life)');
+    }else{
+      
+      timeLeft -= 10; if (timeLeft < 0) timeLeft = 0;
+      if (typeof updateTimer === 'function') updateTimer();
+      showTimerDelta('-10', 'red');
+      showToast('Skipped');
+    }
+
+    generateSequence();
+  }
+
+  function useHint(){
+    if(hintBtn.disabled) return;
+    if(!current){ showToast('No active sequence'); return; }
+    if(hintsRemaining <= 0){ showToast('No hints left'); return; }
+    hintsRemaining--;
+    if(hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining;
+    if(hintBox) { hintBox.textContent = current.ruleText || '—'; hintBox.style.display = 'block'; }
+    showToast('Hint shown');
+    hintBtn.disabled = true; hintBtn.style.opacity = '0.5'; hintBtn.style.cursor = 'not-allowed';
+  }
+
+  function onTimeout(){
+    // Only relevant to Arcade; Survival has no timer running
+    if(gameMode==='arcade'){
+      endGame('Time up');
+    }
+  }
 
   // keyboard
   (function buildKeyboard(){ if(!keyboardEl) return; keyboardEl.innerHTML=''; const layout = [['1','2','3'],['4','5','6'],['7','8','9'],['-','0','⌫'],['','OK','']]; layout.forEach(row=>{ const rowDiv = document.createElement('div'); rowDiv.className='key-row'; row.forEach(k=>{ if(k===''){ const spacer = document.createElement('div'); spacer.className='key-spacer'; rowDiv.appendChild(spacer); return; } const btn = document.createElement('button'); if(k==='⌫'){ btn.textContent='⌫'; btn.addEventListener('click', ()=>{ numInput.value = (numInput.value||'').toString().slice(0,-1); }); } else if(k==='OK'){ btn.textContent='OK'; btn.addEventListener('click', ()=> checkAnswer()); } else { btn.textContent = k; btn.addEventListener('click', ()=> { numInput.value = (numInput.value||'').toString() + k; }); } rowDiv.appendChild(btn); }); keyboardEl.appendChild(rowDiv); }); })();
@@ -609,60 +698,72 @@ function skipSequence() {
   restartBtn && restartBtn.addEventListener('click', restartGame);
   numInput && numInput.addEventListener('keydown', e=>{ if(e.key==='Enter') checkAnswer(); });
 
-  hintBtn.disabled = true;
-  hintBtn.style.opacity = '0.5';
-  hintBtn.style.cursor = 'not-allowed';
+  hintBtn.disabled = true; hintBtn.style.opacity = '0.5'; hintBtn.style.cursor = 'not-allowed';
+  nextBtn.disabled = true; nextBtn.style.opacity = '0.5'; nextBtn.style.cursor = 'not-allowed';
 
-  nextBtn.disabled = true;
-  nextBtn.style.opacity = '0.5';
-  nextBtn.style.cursor = 'not-allowed';
-
-  function restartGame(){
-    revealUsedThisSequence = false;
+  function resetState(){
     score = 0; lives = 3; hintsRemaining = 3; streak = 0; sequencesCompleted = 0; level = 1; difficultyIndex = 0;
-    // Keep Skip & Reveal disabled until Play is pressed
-    hintBtn.disabled = true;
-    hintBtn.style.opacity = '0.5';
-    hintBtn.style.cursor = 'not-allowed';
+    updateHUD(); resetTimerDisplay(); stopTimer();
+    hintBtn.disabled = true; hintBtn.style.opacity = '0.5'; hintBtn.style.cursor = 'not-allowed';
+    nextBtn.disabled = true; nextBtn.style.opacity = '0.5'; nextBtn.style.cursor = 'not-allowed';
+    if(hintBox){ hintBox.style.display='none'; hintBox.textContent=''; }
+  }
 
-    nextBtn.disabled = true;
-    nextBtn.style.opacity = '0.5';
-    nextBtn.style.cursor = 'not-allowed';
-    
-    const hintBox = document.getElementById('hintBox'); if(hintBox) { hintBox.style.display='none'; hintBox.textContent=''; }
-    
-    restartBtn.style.display='none';
-    seqArea.innerHTML = '<button id="playBtn" class="play-btn">' + ('▶ Play') + '</button>';
-    const pb = document.getElementById('playBtn'); if(pb) pb.addEventListener('click', startGame);
+  function restartGame() {
+    revealUsedThisSequence = false;
+    gameMode = null;
+    resetState();
+    restartBtn.style.display = 'none';
+    seqArea.innerHTML = '<button id=\"playBtn\" class=\"play-btn\">▶ Play</button>';
+    modeSelect.style.display = 'none';
+    if(timerStat) timerStat.style.display='block'; // default visible while no mode
+    if(livesStat) livesStat.style.display='block';
+
+    const pb = document.getElementById('playBtn');
+    if (pb) pb.addEventListener('click', ()=>{
+      pb.style.display='none';
+      modeSelect.style.display='block';
+    });
   }
 
   window.onerror = function(msg, src, line, col, err){ console.error('Caught', msg, 'at', src+':'+line+':'+col, err); showToast('Error: '+ (msg && msg.toString().slice(0,48)), 4000); };
-  // Play button controlled start
-  function startGame(){
-    const btn = document.getElementById('playBtn');
-    if(btn) btn.style.display = 'none';
-      nextBtn.disabled = false;
-      nextBtn.style.opacity = '';
-      nextBtn.style.cursor = '';
 
-      hintBtn.disabled = (hintsRemaining <= 0);
-      hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
-      hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
+  function beginGameWithMode(mode){
+    gameMode = mode;
+    modeSelect.style.display='none';
+    resetState();
+    setHUDByMode();
+    // Enable controls
+    nextBtn.disabled = false; nextBtn.style.opacity = ''; nextBtn.style.cursor = '';
+    hintBtn.disabled = (hintsRemaining <= 0);
+    hintBtn.style.opacity = hintsRemaining <= 0 ? '0.5' : '';
+    hintBtn.style.cursor = hintsRemaining <= 0 ? 'not-allowed' : '';
 
-      generateSequence();
-      startTimer();
+    generateSequence();
+
+    if(gameMode==='arcade'){
+      resetTimerDisplay(); startTimer(); // single countdown for whole run
+    }else{
+      stopTimer(); // ensure timer is off
+    }
   }
-  (function attachPlayInit(){
-    const b = document.getElementById('playBtn');
-    if(b) b.addEventListener('click', startGame);
-  })();
 
-  // Modify restartGame to show a Play Again button instead of auto-starting
+  // Initial Play → Mode selection wiring
+  if(playBtn){
+    playBtn.addEventListener('click', ()=>{
+      playBtn.style.display='none';
+      modeSelect.style.display='block';
+    });
+  }
+  if(survivalBtn){
+    survivalBtn.addEventListener('click', ()=> beginGameWithMode('survival'));
+  }
+  if(arcadeBtn){
+    arcadeBtn.addEventListener('click', ()=> beginGameWithMode('arcade'));
+  }
 
-
-  // start
+  // start: idle state until user chooses a mode
   updateHUD();
-  // wait for user to click Play
 })();
   
 // Prevent iOS bounce and zoom
@@ -693,6 +794,28 @@ document.body.addEventListener('touchmove', function (e) {
 }, { passive: false });
 
 
+
+// Floating popup near the Timer (like score popup)
+function showTimerDelta(text, color) {
+  const timerEl = document.getElementById('timer');
+  if (!timerEl) return;
+  const statContainer = timerEl.parentElement || document.body;
+  // Ensure positioning context
+  const cs = getComputedStyle(statContainer);
+  if (cs.position === 'static') statContainer.style.position = 'relative';
+  const fly = document.createElement('div');
+  fly.className = 'score-fly';
+  fly.textContent = text;
+  if (color) fly.style.color = color;
+  statContainer.appendChild(fly);
+  const tRect = timerEl.getBoundingClientRect();
+  const cRect = statContainer.getBoundingClientRect();
+  const left = (tRect.left - cRect.left) + (tRect.width / 2);
+  fly.style.left = left + 'px';
+  fly.style.top = (tRect.top - cRect.top) + 'px';
+  fly.style.transform = 'translateX(-50%)';
+  setTimeout(() => fly.remove(), 1000);
+}
 </script>
 </body>
 </html>
