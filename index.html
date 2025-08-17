@@ -100,6 +100,59 @@
   justify-content: center;
   gap: 10px;
 }
+
+.sequence {
+  font-size: 22px;
+  letter-spacing: 2px;
+  margin: 12px 0;
+  text-align: center;
+  word-break: break-word;
+  transition: filter 0.2s ease-in-out; /* smooth blur */
+}
+
+.sequence.blur {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes pulse {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50%  { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+#gameOverOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  display: none;
+  padding: 1rem 2rem;
+  background: rgba(0,0,0,0.7);
+  border-radius: 12px;
+}
+
+
+#gameOverOverlay.show {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+#gameOverOverlay.hide {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.8);
+  transition: opacity 1.2s ease, transform 1.2s ease-in;
+  animation: none;
+}
+
 </style>
 </head>
 <body>
@@ -116,7 +169,9 @@
 
     <div class="board">
       <div class="small">Streak: <span id="streak">0</span></div>
+      <div>
       <div id="sequenceArea" class="sequence" aria-live="polite"><button id="playBtn" class="play-btn">▶ Play</button></div>
+      <div id="gameOverOverlay">GAME OVER</div>
       <div id="modeSelect" style="display:none; margin-top:10px;">
         <button id="survivalBtn" class="play-btn">Survival Mode</button>
         <button id="arcadeBtn" class="play-btn">Arcade Mode</button>
@@ -594,12 +649,29 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
     }
   }
 
-  function endGame(msg='Game Over'){
-    stopTimer();
-    showToast(msg,2000);
-    seqArea.textContent = 'GAME OVER';
-    restartBtn.style.display = 'block';
+  
+function endGame(msg='Game Over'){
+  stopTimer();
+  showToast(msg,2000);
+
+  // Blur sequence
+  seqArea.classList.add('blur');
+
+  // Show overlay with fade-in
+  const overlay = document.getElementById('gameOverOverlay');
+  if (overlay) {
+    overlay.classList.remove('hide');
+    overlay.classList.add('show');
   }
+
+  restartBtn.style.display = 'block';
+
+  // Disable Skip
+  nextBtn.disabled = true;
+  nextBtn.style.opacity = '0.5';
+  nextBtn.style.cursor = 'not-allowed';
+}
+
 
   function checkAnswer(){
     const val = (numInput.value || '').toString().trim();
@@ -709,22 +781,37 @@ function isValidDivisionSequence(arr) { for (let i = 1; i < arr.length; i++) { i
     if(hintBox){ hintBox.style.display='none'; hintBox.textContent=''; }
   }
 
-  function restartGame() {
-    revealUsedThisSequence = false;
-    gameMode = null;
-    resetState();
-    restartBtn.style.display = 'none';
-    seqArea.innerHTML = '<button id=\"playBtn\" class=\"play-btn\">▶ Play</button>';
-    modeSelect.style.display = 'none';
-    if(timerStat) timerStat.style.display='block'; // default visible while no mode
-    if(livesStat) livesStat.style.display='block';
+  
+function restartGame() {
+  revealUsedThisSequence = false;
+  gameMode = null;
+  resetState();
+  restartBtn.style.display = 'none';
 
-    const pb = document.getElementById('playBtn');
-    if (pb) pb.addEventListener('click', ()=>{
-      pb.style.display='none';
-      modeSelect.style.display='block';
-    });
+  // Remove overlay + blur
+  seqArea.classList.remove('blur');
+  const overlay = document.getElementById('gameOverOverlay');
+  if (overlay) {
+    overlay.classList.remove('show');
+    overlay.classList.add('hide');
+
+    // Wait for fade-out before hiding element completely
+    setTimeout(()=>{ 
+      overlay.style.display = 'none'; 
+    }, 1200);
   }
+
+  seqArea.innerHTML = '<button id="playBtn" class="play-btn">▶ Play</button>';
+  modeSelect.style.display = 'none';
+  if(timerStat) timerStat.style.display='block';
+  if(livesStat) livesStat.style.display='block';
+
+  const pb = document.getElementById('playBtn');
+  if (pb) pb.addEventListener('click', ()=>{
+    pb.style.display='none';
+    modeSelect.style.display='block';
+  });
+}
 
   window.onerror = function(msg, src, line, col, err){ console.error('Caught', msg, 'at', src+':'+line+':'+col, err); showToast('Error: '+ (msg && msg.toString().slice(0,48)), 4000); };
 
